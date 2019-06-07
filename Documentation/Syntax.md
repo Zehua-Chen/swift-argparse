@@ -21,13 +21,37 @@ The AST has three types of nodes:
 - **Optional** parameters can be unordered and be inserted in-between required
 parameters
 
+## Syntax Rules
+A name is defined as a string that starts with alphbets and optionally contain `-` or `_` 
+in between.
+
+### Subcommands
+Subcommands are names without modification.
+
+````
+compile
+````
+
+### Optional Parameters
+Optional parameters are names that starts with a `-`
+
+````
+-flag
+--flag
+````
+
+### Required Parameters
+Required parameters use the same syntax as subcommands
+
 ## AST Nodes
 
-### Subcommand
+### Name
+The distinction between subcommand and required parameters will be made
+after semantic analysis.
 
 #### Properties
 
-- (`string`): name
+- (`string`): value
 
 ### Optional Parameters
 
@@ -36,8 +60,3 @@ parameters
 - (`string`): name (including `-`)
 - (`string | number | boolean`): value
 
-### Required Parameters
-
-##### Properties
-
-- (`string`) value

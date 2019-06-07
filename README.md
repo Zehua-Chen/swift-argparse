@@ -1,3 +1,6 @@
 # SwiftArgParse
 
-A description of this package.
+Command line argument parser for swift. Planned features include:
+
+- Type checking
+- Subcommands
