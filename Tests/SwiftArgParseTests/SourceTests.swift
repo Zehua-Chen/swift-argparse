@@ -2,43 +2,50 @@
 //  File.swift
 //  
 //
-//  Created by Zehua Chen on 6/7/19.
+//  Created by Zehua Chen on 6/9/19.
 //
 
 import XCTest
 @testable import SwiftArgParse
 
 final class SourceTests: XCTestCase {
-    func testRead() {
-        var source = _Source(from: ["ab", "c", "def"])
-        var output = ""
 
-        while let char = source.next() {
-            output.append(char)
+    func enumerate(_ blocks: ArraySlice<String>) -> [_Source.Letter] {
+        var source = _Source(using: blocks)
+        var letter = source.next()
+        var output = [_Source.Letter]()
+
+        while letter != .endOfFile {
+            output.append(letter)
+            letter = source.next()
         }
 
-        XCTAssertEqual("abcdef", output)
+        output.append(letter)
+
+        return output
     }
 
-    func testEmpty() {
-        var source = _Source(from: [String]())
-        var output = ""
-
-        while let char = source.next() {
-            output.append(char)
-        }
-
-        XCTAssertTrue(output.isEmpty)
+    func testSingeBlock() {
+        let blocks = enumerate(["abc"])
+        XCTAssertEqual(blocks, [
+            .letter("a"),
+            .letter("b"),
+            .letter("c"),
+            .endOfFile
+        ])
     }
 
-    func testSingleBlock() {
-        var source = _Source(from: ["abc"])
-        var output = ""
-
-        while let char = source.next() {
-            output.append(char)
-        }
-
-        XCTAssertEqual(output, "abc")
+    func testMultipleBlocks() {
+        let blocks = enumerate(["ab", "cd", "e"])
+        XCTAssertEqual(blocks, [
+            .letter("a"),
+            .letter("b"),
+            .endOfBlock,
+            .letter("c"),
+            .letter("d"),
+            .endOfBlock,
+            .letter("e"),
+            .endOfFile
+        ])
     }
 }

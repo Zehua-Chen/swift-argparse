@@ -2,32 +2,40 @@
 //  File.swift
 //  
 //
-//  Created by Zehua Chen on 6/7/19.
+//  Created by Zehua Chen on 6/9/19.
 //
 
 internal struct _Source {
-    var data: [String]
-    var blockCursor: Array<String>.Iterator
-    var charCursor: String.Iterator?
 
-    init(from data: [String]) {
-        self.data = data
-        self.blockCursor = self.data.makeIterator()
-        self.charCursor = self.blockCursor.next()?.makeIterator()
+    internal enum Letter: Equatable {
+        case undefined
+        case letter(_ c: Character)
+        case endOfBlock
+        case endOfFile
     }
 
-    mutating func next() -> Character? {
-        // If not at the end of the current block, read
-        if let char = self.charCursor?.next() {
-            return char
+    fileprivate var _source: ArraySlice<String>
+    fileprivate var _blocksIterator: ArraySlice<String>.Iterator
+    fileprivate var _blockIterator: String.Iterator?
+
+    internal init(using source: ArraySlice<String>) {
+        _source = source
+        _blocksIterator = _source.makeIterator()
+        _blockIterator = _blocksIterator.next()?.makeIterator()
+    }
+
+    internal mutating func next() -> Letter {
+
+        // If inside a block, enumerate
+        if let letter = _blockIterator?.next() {
+            return .letter(letter)
         }
 
-        // Advance to the next block
-        if let block = self.blockCursor.next() {
-            self.charCursor = block.makeIterator()
-            return self.charCursor!.next()
+        if let block = _blocksIterator.next() {
+            _blockIterator = block.makeIterator()
+            return .endOfBlock
         }
 
-        return nil
+        return .endOfFile
     }
 }
