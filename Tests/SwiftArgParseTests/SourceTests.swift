@@ -12,15 +12,11 @@ final class SourceTests: XCTestCase {
 
     func enumerate(_ blocks: ArraySlice<String>) -> [_Source.Letter] {
         var source = _Source(using: blocks)
-        var letter = source.next()
         var output = [_Source.Letter]()
 
-        while letter != .endOfFile {
+        while let letter = source.next() {
             output.append(letter)
-            letter = source.next()
         }
-
-        output.append(letter)
 
         return output
     }
@@ -31,7 +27,6 @@ final class SourceTests: XCTestCase {
             .letter("a"),
             .letter("b"),
             .letter("c"),
-            .endOfFile
         ])
     }
 
@@ -40,12 +35,11 @@ final class SourceTests: XCTestCase {
         XCTAssertEqual(blocks, [
             .letter("a"),
             .letter("b"),
-            .endOfBlock,
+            .blockSeparator,
             .letter("c"),
             .letter("d"),
-            .endOfBlock,
+            .blockSeparator,
             .letter("e"),
-            .endOfFile
         ])
     }
 }

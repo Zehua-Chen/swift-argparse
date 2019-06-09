@@ -10,13 +10,13 @@ internal struct _Source {
     internal enum Letter: Equatable {
         case undefined
         case letter(_ c: Character)
-        case endOfBlock
-        case endOfFile
+        case blockSeparator
     }
 
     fileprivate var _source: ArraySlice<String>
     fileprivate var _blocksIterator: ArraySlice<String>.Iterator
     fileprivate var _blockIterator: String.Iterator?
+    fileprivate var _block: String?
 
     internal init(using source: ArraySlice<String>) {
         _source = source
@@ -24,7 +24,7 @@ internal struct _Source {
         _blockIterator = _blocksIterator.next()?.makeIterator()
     }
 
-    internal mutating func next() -> Letter {
+    internal mutating func next() -> Letter? {
 
         // If inside a block, enumerate
         if let letter = _blockIterator?.next() {
@@ -32,10 +32,11 @@ internal struct _Source {
         }
 
         if let block = _blocksIterator.next() {
-            _blockIterator = block.makeIterator()
-            return .endOfBlock
+            _block = block
+            _blockIterator = _block?.makeIterator()
+            return .blockSeparator
         }
 
-        return .endOfFile
+        return nil
     }
 }
