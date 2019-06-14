@@ -8,7 +8,6 @@
 internal struct _Source {
 
     internal enum Letter: Equatable {
-        case undefined
         case letter(_ c: Character)
         case blockSeparator
     }
