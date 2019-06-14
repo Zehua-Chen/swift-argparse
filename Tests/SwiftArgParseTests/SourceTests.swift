@@ -10,9 +10,9 @@ import XCTest
 
 final class SourceTests: XCTestCase {
 
-    func enumerate(_ blocks: ArraySlice<String>) -> [_Source.Letter] {
+    func enumerate(_ blocks: ArraySlice<String>) -> [_Source.Item] {
         var source = _Source(using: blocks)
-        var output = [_Source.Letter]()
+        var output = [_Source.Item]()
 
         while let letter = source.next() {
             output.append(letter)
@@ -24,22 +24,22 @@ final class SourceTests: XCTestCase {
     func testSingeBlock() {
         let blocks = enumerate(["abc"])
         XCTAssertEqual(blocks, [
-            .letter("a"),
-            .letter("b"),
-            .letter("c"),
+            .character("a"),
+            .character("b"),
+            .character("c"),
         ])
     }
 
     func testMultipleBlocks() {
         let blocks = enumerate(["ab", "cd", "e"])
         XCTAssertEqual(blocks, [
-            .letter("a"),
-            .letter("b"),
+            .character("a"),
+            .character("b"),
             .blockSeparator,
-            .letter("c"),
-            .letter("d"),
+            .character("c"),
+            .character("d"),
             .blockSeparator,
-            .letter("e"),
+            .character("e"),
         ])
     }
 }

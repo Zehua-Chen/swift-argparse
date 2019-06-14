@@ -7,13 +7,13 @@
 
 internal struct _Lexer {
     fileprivate var _source: _Source
-    fileprivate var _letter: _Source.Letter?
+    fileprivate var _letter: _Source.Item?
 
     internal init(using source: _Source) {
         _source = source
     }
 
-    internal mutating func next() -> _Token? {
+    internal mutating func next() throws -> _Token? {
         if _letter == nil {
             _letter = _source.next()
             // End of source
@@ -21,7 +21,7 @@ internal struct _Lexer {
         }
 
         switch _letter! {
-        case .letter(let c):
+        case .character(let c):
             switch c {
             case "=":
                 _letter = _source.next()
@@ -30,31 +30,31 @@ internal struct _Lexer {
                 _letter = _source.next()
                 return .dash
             case "a"..."z", "A"..."Z":
-                return _string()
+                return try _string()
             default:
-                return nil
+                throw ParserError.unexpected(character: c)
             }
         case .blockSeparator:
             _letter = _source.next()
-            return self.next()
+            return try self.next()
         }
     }
 
     // MARK: Token handlers
 
-    fileprivate mutating func _string() -> _Token? {
+    fileprivate mutating func _string() throws -> _Token? {
         var buffer = ""
 
         loop: while _letter != nil && _letter! != .blockSeparator {
             switch _letter! {
-            case .letter(let c):
+            case .character(let c):
                 switch c {
                 case "a"..."z", "A"..."Z", " ":
                     buffer.append(c)
                 case "=":
                     return .string(buffer)
                 default:
-                    return nil
+                    throw ParserError.unexpected(character: c)
                 }
             case .blockSeparator:
                 return .string(buffer)

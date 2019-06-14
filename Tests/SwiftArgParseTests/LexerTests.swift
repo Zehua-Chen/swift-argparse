@@ -3,11 +3,11 @@ import XCTest
 
 final class LexerTests: XCTestCase {
 
-    func tokenize(_ data: [String]) -> [_Token] {
+    func tokenize(_ data: [String]) throws -> [_Token] {
         var lexer = _Lexer(using: _Source(using: data[0...]))
         var output = [_Token]()
 
-        while let token = lexer.next() {
+        while let token = try lexer.next() {
             output.append(token)
         }
 
@@ -15,7 +15,7 @@ final class LexerTests: XCTestCase {
     }
 
     func testNonContextuals() {
-        let tokens = tokenize(["=", "-", "--"])
+        let tokens = try! tokenize(["=", "-", "--"])
         XCTAssertEqual(tokens, [
             .assignment,
             .dash,
@@ -25,7 +25,7 @@ final class LexerTests: XCTestCase {
     }
 
     func testString() {
-        let tokens = tokenize(["compile", "-name=billy herrington"])
+        let tokens = try! tokenize(["compile", "-name=billy herrington"])
         XCTAssertEqual(tokens, [
             .string("compile"),
             .dash,

@@ -7,8 +7,8 @@
 
 internal struct _Source {
 
-    internal enum Letter: Equatable {
-        case letter(_ c: Character)
+    internal enum Item: Equatable {
+        case character(_ c: Character)
         case blockSeparator
     }
 
@@ -23,11 +23,11 @@ internal struct _Source {
         _blockIterator = _blocksIterator.next()?.makeIterator()
     }
 
-    internal mutating func next() -> Letter? {
+    internal mutating func next() -> Item? {
 
         // If inside a block, enumerate
         if let letter = _blockIterator?.next() {
-            return .letter(letter)
+            return .character(letter)
         }
 
         if let block = _blocksIterator.next() {
