@@ -133,7 +133,11 @@ internal struct _Lexer {
         var isDecimal = false
         var buffer = ""
 
-        let compose: () throws -> _Token = {
+        /// Compose a number token
+        ///
+        /// - Returns: a number token
+        /// - Throws: `ParserError`
+        func compose() throws -> _Token {
             if isDecimal {
                 guard let d = Double(buffer) else {
                     throw ParserError.unableToParseNumber

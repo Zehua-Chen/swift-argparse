@@ -5,12 +5,14 @@
 //  Created by Zehua Chen on 6/9/19.
 //
 
-internal struct _Source {
+internal struct _Source: Sequence, IteratorProtocol {
 
     internal enum Item: Equatable {
         case character(_ c: Character)
         case blockSeparator
     }
+
+    typealias Element = Item
 
     fileprivate var _source: ArraySlice<String>
     fileprivate var _blocksIterator: ArraySlice<String>.Iterator
