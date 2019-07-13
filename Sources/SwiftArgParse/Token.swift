@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  Token.swift
+//  SwiftArgParse
 //
 //  Created by Zehua Chen on 6/7/19.
 //

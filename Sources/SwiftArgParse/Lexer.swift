@@ -1,11 +1,14 @@
 //
-//  File.swift
-//  
+//  Lexer.swift
+//  SwiftArgParse
 //
 //  Created by Zehua Chen on 6/7/19.
 //
 
 internal struct _Lexer {
+    fileprivate static let _trueLiteral = "true"
+    fileprivate static let _falseLiteral = "false"
+
     fileprivate var _source: _Source
     fileprivate var _letter: _Source.Item?
 
@@ -29,6 +32,10 @@ internal struct _Lexer {
             case "-":
                 _letter = _source.next()
                 return .dash
+            case "t":
+                return try _boolean(literal: _Lexer._trueLiteral, value: true)
+            case "f":
+                return try _boolean(literal: _Lexer._falseLiteral, value: false)
             case "a"..."z", "A"..."Z":
                 return try _string()
             default:
@@ -45,7 +52,7 @@ internal struct _Lexer {
     fileprivate mutating func _string() throws -> _Token? {
         var buffer = ""
 
-        loop: while _letter != nil && _letter! != .blockSeparator {
+        while _letter != nil && _letter! != .blockSeparator {
             switch _letter! {
             case .character(let c):
                 switch c {
@@ -56,6 +63,7 @@ internal struct _Lexer {
                 default:
                     throw ParserError.unexpected(character: c)
                 }
+            // '=' is a token, must return and not enumerate
             case .blockSeparator:
                 return .string(buffer)
             }
@@ -66,5 +74,29 @@ internal struct _Lexer {
         return .string(buffer)
     }
 
-    // MARK: Enumeration helpers
+    fileprivate mutating func _boolean(literal: String, value: Bool) throws -> _Token? {
+        var index = literal.startIndex
+        let endIndex = literal.endIndex
+
+        while _letter != nil && _letter! != .blockSeparator {
+
+            switch _letter! {
+            case .character(let c):
+                if c != literal[index] {
+                    throw ParserError.unexpected(character: c)
+                }
+            case .blockSeparator:
+                break
+            }
+
+            _letter = _source.next()
+            literal.formIndex(after: &index)
+
+            if index == endIndex {
+                return .boolean(value)
+            }
+        }
+
+        throw ParserError.expecting(string: literal)
+    }
 }

@@ -34,4 +34,28 @@ final class LexerTests: XCTestCase {
             .string("billy herrington"),
         ])
     }
+
+    func testBoolean() {
+        let tokens = try! tokenize([
+            "-right=true",
+            "-right=false",
+            "true=false"
+        ])
+
+        XCTAssertEqual(tokens, [
+            .dash,
+            .string("right"),
+            .assignment,
+            .boolean(true),
+            .dash,
+            .string("right"),
+            .assignment,
+            .boolean(false),
+            .boolean(true),
+            .assignment,
+            .boolean(false)
+        ])
+
+        XCTAssertThrowsError(try tokenize(["tru"]))
+    }
 }
