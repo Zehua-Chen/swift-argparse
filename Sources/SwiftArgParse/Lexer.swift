@@ -125,12 +125,46 @@ internal struct _Lexer {
         throw ParserError.expecting(string: literal)
     }
 
+    /// Parse an **unsigned** number token, `-` is treated as dash
+    ///
+    /// - Returns: a token, if there is one
+    /// - Throws: `ParserError`
     fileprivate mutating func _number() throws -> _Token? {
+        var isDecimal = false
+        var buffer = ""
+
+        let compose: () throws -> _Token = {
+            if isDecimal {
+                guard let d = Double(buffer) else {
+                    throw ParserError.unableToParseNumber
+                }
+
+                return _Token.udecimal(d)
+            } else {
+                guard let i = UInt(buffer) else {
+                    throw ParserError.unableToParseNumber
+                }
+
+                return _Token.uint(i)
+            }
+        }
 
         while _item != nil && _item! != .blockSeparator {
+
+            switch _item! {
+            case .character(let c):
+                if c == "." {
+                    isDecimal = true
+                }
+                
+                buffer.append(c)
+            case .blockSeparator:
+                return try compose()
+            }
+
             _item = _source.next()
         }
 
-        return nil
+        return try compose()
     }
 }

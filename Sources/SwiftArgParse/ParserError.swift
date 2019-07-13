@@ -8,4 +8,5 @@
 public enum ParserError: Error {
     case unexpected(character: Character)
     case expecting(string: String)
+    case unableToParseNumber
 }

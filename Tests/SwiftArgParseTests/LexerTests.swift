@@ -58,4 +58,42 @@ final class LexerTests: XCTestCase {
 
         XCTAssertThrowsError(try tokenize(["tru"]))
     }
+
+    func testInt() {
+        let tokens = try! tokenize([
+            "-positive=123",
+            "-negative=-123"
+        ])
+
+        XCTAssertEqual(tokens, [
+            .dash,
+            .string("positive"),
+            .assignment,
+            .uint(123),
+            .dash,
+            .string("negative"),
+            .assignment,
+            .dash,
+            .uint(123)
+        ])
+    }
+
+    func testDecimal() {
+        let tokens = try! tokenize([
+            "-positive=123.23",
+            "-negative=-123.23"
+            ])
+
+        XCTAssertEqual(tokens, [
+            .dash,
+            .string("positive"),
+            .assignment,
+            .udecimal(123.23),
+            .dash,
+            .string("negative"),
+            .assignment,
+            .dash,
+            .udecimal(123.23)
+        ])
+    }
 }
