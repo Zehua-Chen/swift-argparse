@@ -74,16 +74,15 @@ internal struct _Lexer {
             switch _item! {
             case .character(let c):
                 switch c {
-                case "a"..."z", "A"..."Z", " ":
-                    buffer.append(c)
                 case "=":
                     return .string(buffer)
                 default:
-                    throw LexerError.unexpected(character: c)
+                    print("c = \(c)")
+                    buffer.append(c)
                 }
             // '=' is a token, must return and not enumerate
             case .blockSeparator:
-                return .string(buffer)
+                break
             }
 
             _item = _source.next()

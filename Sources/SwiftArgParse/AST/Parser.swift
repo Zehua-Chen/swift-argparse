@@ -11,26 +11,75 @@ internal struct _Parser {
     fileprivate var _nameBuffer = ""
     fileprivate var _token: _Token!
 
+    /// Create a new parser from given command line args
+    ///
+    /// - Parameter args: the command line args to use
     internal init(args: [String]) {
         _lexer = _Lexer(using: _Source(using: args[0...]))
         _token = try! _lexer.next()
     }
 
+    /// Parse into an ast context
+    ///
+    /// - Parameter context: the AST context to receive the results
+    /// - Throws: TBD
     internal mutating func parse(into context: inout ASTContext) throws {
-
+        // Each handler is supposed to
+        // - Handle the iteration of self._token
+        // - Make sure the self._token to be handled in the next iteration is
+        //   not _Token.blockSeparator, as a block separtor is supposed to end
+        //   a declaration
         while _token != nil {
             switch _token! {
-            case .string(let str):
-                context.subcommands.insert(str)
-                _token = try _lexer.next()
+            case .string(let _):
+                try _subcommand(context: &context)
             case .dash:
                 try _optionalParam(context: &context)
             default:
+                // TODO: Handle error
                 break
             }
         }
     }
 
+    /// Handle subcommand
+    ///
+    /// - Parameter context: the context to receive the subcommand
+    /// - Throws: TBD
+    internal mutating func _subcommand(context: inout ASTContext) throws {
+        enum State {
+            case expectingString
+            case expectingBlockSeparator
+        }
+
+        var state = State.expectingString
+
+        while _token != nil {
+            switch state {
+            case .expectingString:
+                switch _token! {
+                case .string(let str):
+                    context.subcommands.insert(str)
+                    state = .expectingBlockSeparator
+                default:
+                    // TODO: Handle error
+                    break
+                }
+            case .expectingBlockSeparator:
+                if case .blockSeparator = _token! {
+                    _token = try _lexer.next()
+                    return
+                }
+            }
+
+            _token = try _lexer.next()
+        }
+    }
+
+    /// Handle optional parameter
+    ///
+    /// - Parameter context: the context to receive the optional parameter
+    /// - Throws: TBD
     internal mutating func _optionalParam(context: inout ASTContext) throws {
         enum State {
             case expectingName

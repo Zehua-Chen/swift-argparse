@@ -26,4 +26,18 @@ final class ASTContextTests: XCTestCase {
         XCTAssertEqual(context.optionalParams["--d"]!, .int(-12))
         XCTAssertEqual(context.optionalParams["-e"]!, .string("billy herrington"))
     }
+
+    func testSubcommands() {
+        let context = try! ASTContext(from: [
+            "subcommand_1",
+            "subcommand_2",
+            "required_param_2",
+        ])
+
+        XCTAssertTrue(context.subcommands.contains("subcommand_1"))
+        XCTAssertTrue(context.subcommands.contains("subcommand_2"))
+        // Required parameters are considered to be subcommands until
+        // the semantic stage
+        XCTAssertTrue(context.subcommands.contains("required_param_2"))
+    }
 }

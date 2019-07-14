@@ -17,9 +17,9 @@ public struct ASTContext {
         return try ASTContext(from: CommandLine.arguments)
     }
 
-    public var subcommands = Set<String>()
-    public var requiredParams = Set<String>()
-    public var optionalParams = [String: Value]()
+    public internal(set) var subcommands = Set<String>()
+    public internal(set) var requiredParams = Set<String>()
+    public internal(set) var optionalParams = [String: Value]()
 
     public init(from args: [String]) throws {
         var parser = _Parser(args: args)
