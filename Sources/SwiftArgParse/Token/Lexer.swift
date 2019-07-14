@@ -53,11 +53,11 @@ internal struct _Lexer {
                 return try _number()
             // if character is not recognized, throws ParserError
             default:
-                throw ParserError.unexpected(character: c)
+                throw LexerError.unexpected(character: c)
             }
         case .blockSeparator:
             _item = _source.next()
-            return try self.next()
+            return .blockSeparator
         }
     }
 
@@ -79,7 +79,7 @@ internal struct _Lexer {
                 case "=":
                     return .string(buffer)
                 default:
-                    throw ParserError.unexpected(character: c)
+                    throw LexerError.unexpected(character: c)
                 }
             // '=' is a token, must return and not enumerate
             case .blockSeparator:
@@ -108,7 +108,7 @@ internal struct _Lexer {
             switch _item! {
             case .character(let c):
                 if c != literal[index] {
-                    throw ParserError.unexpected(character: c)
+                    throw LexerError.unexpected(character: c)
                 }
             case .blockSeparator:
                 break
@@ -122,7 +122,7 @@ internal struct _Lexer {
             }
         }
 
-        throw ParserError.expecting(string: literal)
+        throw LexerError.expecting(string: literal)
     }
 
     /// Parse an **unsigned** number token, `-` is treated as dash
@@ -140,13 +140,13 @@ internal struct _Lexer {
         func compose() throws -> _Token {
             if isDecimal {
                 guard let d = Double(buffer) else {
-                    throw ParserError.unableToParseNumber
+                    throw LexerError.unableToParseNumber
                 }
 
                 return _Token.udecimal(d)
             } else {
                 guard let i = UInt(buffer) else {
-                    throw ParserError.unableToParseNumber
+                    throw LexerError.unableToParseNumber
                 }
 
                 return _Token.uint(i)

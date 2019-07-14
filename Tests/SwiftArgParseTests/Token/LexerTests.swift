@@ -1,3 +1,10 @@
+//
+//  LexerTests.swift
+//  SwiftArgParse
+//
+//  Created by Zehua Chen on 5/25/19.
+//
+
 import XCTest
 @testable import SwiftArgParse
 
@@ -18,7 +25,9 @@ final class LexerTests: XCTestCase {
         let tokens = try! tokenize(["=", "-", "--"])
         XCTAssertEqual(tokens, [
             .assignment,
+            .blockSeparator,
             .dash,
+            .blockSeparator,
             .dash,
             .dash
         ])
@@ -28,6 +37,7 @@ final class LexerTests: XCTestCase {
         let tokens = try! tokenize(["compile", "-name=billy herrington"])
         XCTAssertEqual(tokens, [
             .string("compile"),
+            .blockSeparator,
             .dash,
             .string("name"),
             .assignment,
@@ -47,10 +57,12 @@ final class LexerTests: XCTestCase {
             .string("right"),
             .assignment,
             .boolean(true),
+            .blockSeparator,
             .dash,
             .string("right"),
             .assignment,
             .boolean(false),
+            .blockSeparator,
             .boolean(true),
             .assignment,
             .boolean(false)
@@ -70,6 +82,7 @@ final class LexerTests: XCTestCase {
             .string("positive"),
             .assignment,
             .uint(123),
+            .blockSeparator,
             .dash,
             .string("negative"),
             .assignment,
@@ -89,6 +102,7 @@ final class LexerTests: XCTestCase {
             .string("positive"),
             .assignment,
             .udecimal(123.23),
+            .blockSeparator,
             .dash,
             .string("negative"),
             .assignment,
