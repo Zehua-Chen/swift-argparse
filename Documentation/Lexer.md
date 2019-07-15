@@ -12,6 +12,7 @@ internal enum _Token: Equatable {
     case udecimal(_ value: Double)
     case dash
     case assignment
+    case blockSeparator
 }
 ````
 
@@ -21,3 +22,19 @@ internal enum _Token: Equatable {
 - **udecimal**: an unsigned decimal
 - **dash**: the `-` character
 - **assignment**: the `=` character
+- **blockSeparator**: the space between two chuncks of command line argument
+
+## Example
+
+````
+app -option=true
+````
+
+Should be lexed into
+
+- string
+- blockSeparator
+- dash
+- string
+- assignment
+- boolean(`true`)

@@ -31,7 +31,7 @@ internal struct _Parser {
         //   a declaration
         while _token != nil {
             switch _token! {
-            case .string(let _):
+            case .string(_):
                 try _subcommand(context: &context)
             case .dash:
                 try _optionalParam(context: &context)
