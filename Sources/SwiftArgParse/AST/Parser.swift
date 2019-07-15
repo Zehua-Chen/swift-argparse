@@ -22,7 +22,7 @@ internal struct _Parser {
     /// Parse into an ast context
     ///
     /// - Parameter context: the AST context to receive the results
-    /// - Throws: TBD
+    /// - Throws: `ParserError` or `LexerError`
     internal mutating func parse(into context: inout ASTContext) throws {
         // Each handler is supposed to
         // - Handle the iteration of self._token
@@ -36,8 +36,7 @@ internal struct _Parser {
             case .dash:
                 try _optionalParam(context: &context)
             default:
-                // TODO: Handle error
-                break
+                throw ParserError.expectingStringOrDash
             }
         }
     }
@@ -45,7 +44,7 @@ internal struct _Parser {
     /// Handle subcommand
     ///
     /// - Parameter context: the context to receive the subcommand
-    /// - Throws: TBD
+    /// - Throws: `ParserError` or `LexerError`
     internal mutating func _subcommand(context: inout ASTContext) throws {
         enum State {
             case expectingString
@@ -62,8 +61,7 @@ internal struct _Parser {
                     context.subcommands.insert(str)
                     state = .expectingBlockSeparator
                 default:
-                    // TODO: Handle error
-                    break
+                    throw ParserError.expectingString
                 }
             case .expectingBlockSeparator:
                 if case .blockSeparator = _token! {
@@ -79,7 +77,7 @@ internal struct _Parser {
     /// Handle optional parameter
     ///
     /// - Parameter context: the context to receive the optional parameter
-    /// - Throws: TBD
+    /// - Throws: `ParserError` or `LexerError`
     internal mutating func _optionalParam(context: inout ASTContext) throws {
         enum State {
             case expectingName
@@ -102,8 +100,7 @@ internal struct _Parser {
                 case .dash:
                     _nameBuffer.append("-")
                 default:
-                    // TODO: Handle error
-                    break
+                    throw ParserError.expectingStringOrDash
                 }
             case .expectingAssignmentOrBlockSeparator:
                 switch _token! {
@@ -112,11 +109,9 @@ internal struct _Parser {
                 case .blockSeparator:
                     context.optionalParams[_nameBuffer] = .boolean(true)
                     _token = try _lexer.next()
-                    
                     return
                 default:
-                    // TODO: Handle error
-                    break
+                    throw ParserError.expectingAssignmentOrBlockSeparator
                 }
             case .expectingValue:
                 switch _token! {
@@ -135,8 +130,7 @@ internal struct _Parser {
                 case .dash:
                     state = .expectingNegativeValue
                 default:
-                    // TODO: Handle error
-                    break
+                    throw ParserError.expectingValue
                 }
 
             case .expectingNegativeValue:
@@ -150,8 +144,7 @@ internal struct _Parser {
                 case .uint(let ui):
                     context.optionalParams[_nameBuffer] = .int(Int(ui) * -1)
                 default:
-                    // TODO: Handle error
-                    break
+                    throw ParserError.expectingValue
                 }
 
                 state = .expectingBlockSeparator
@@ -160,7 +153,8 @@ internal struct _Parser {
                     _token = try _lexer.next()
                     return
                 }
-                // TODO: Handle error
+
+                throw ParserError.expectingBlockSeparator
             }
 
             _token = try _lexer.next()
