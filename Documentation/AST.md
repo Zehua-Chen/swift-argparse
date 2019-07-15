@@ -15,13 +15,15 @@ app-name command param -options...
 string
 ````
 
-### Required Parameter
+### Required Parameters
 
 ````
-string
+string|boolean
+(dash) uint|udecimal
 ````
 
-- Required parameters are treated like subcommands until the semantic stage.
+- Required parameters of string types are treated like subcommands until the semantic stage.
+- Other required param types are treated as params
 
 ### Optional Parameters
 
@@ -29,5 +31,12 @@ string
 dash(s) string assignment (dash) string|uint|udecimal|boolean
 ````
 
-- The first string, combined with the dashes is the `name`;
+- The first string, **combined with the dashes** is the `name`;
 - Whatever comes after the `assignment` is the `value`;
+
+A simpler form in which the optional param is considered to be a `boolean(true)` is 
+also allowed:
+
+````
+dash(s) string
+````
