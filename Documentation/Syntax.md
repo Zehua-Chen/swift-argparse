@@ -4,15 +4,12 @@
 app-name subcommands... parameters...
 ````
 
-The command line arg AST is organized in the form of an array,
-unlike a typical tree structure.
-
-The AST has three types of nodes:
+The AST has three components:
 1. Subcommands (including the main app command)
 2. Required Parameters
-    - Unnamed;
+- Unnamed;
 3. Optional Parameters
-    - Named;
+- Named;
 
 ## Positional Rules
 
@@ -22,7 +19,7 @@ The AST has three types of nodes:
 parameters
 
 ## Syntax Rules
-A name is defined as a string that starts with alphbets and optionally contain `-` or `_` 
+A name is defined as a string that starts with alphbets and optionally contain `-` or `_`
 in between.
 
 ### Subcommands
