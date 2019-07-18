@@ -17,4 +17,6 @@ public enum ParserError: Error {
     case expectingValue
     /// Thrown when an assignment or a block separator is expected
     case expectingAssignmentOrBlockSeparator
+    case unexpectedFinishing
+    case expectingStringOrNumber
 }

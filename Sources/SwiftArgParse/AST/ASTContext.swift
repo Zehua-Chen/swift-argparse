@@ -22,7 +22,7 @@ public struct ASTContext {
     public init(from args: [String], commandInfo: Command) throws {
         self.commandInfo = commandInfo
 
-        var parser = _Parser(args: args, rootCommandInfo: commandInfo)
+        var parser = _Parser(args: args, rootCommand: commandInfo)
         try parser.parse(into: &self)
     }
 }

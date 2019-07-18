@@ -7,19 +7,25 @@
 
 internal struct _Parser {
 
+    fileprivate enum _Position {
+        case subcommand
+        case params
+    }
+
     fileprivate var _lexer: _Lexer
     fileprivate var _nameBuffer = ""
     fileprivate var _token: _Token!
-    fileprivate var _commandInfo: Command
+    fileprivate var _command: Command
     fileprivate var _isCommandInfoRoot = false
+    fileprivate var _position = _Position.subcommand
 
     /// Create a new parser from given command line args
     ///
     /// - Parameter args: the command line args to use
-    internal init(args: [String], rootCommandInfo: Command) {
+    internal init(args: [String], rootCommand: Command) {
         _lexer = _Lexer(using: _Source(using: args[0...]))
         _token = try! _lexer.next()
-        _commandInfo = rootCommandInfo
+        _command = rootCommand
     }
 
     /// Parse into an ast context
@@ -42,7 +48,31 @@ internal struct _Parser {
             case .boolean(_), .udecimal(_), .uint(_):
                 try _requiredParamsWithoutDash(context: &context)
             case .dash:
-                try _optionalParam(context: &context)
+                guard let nextToken = try _lexer.next() else {
+                    throw ParserError.unexpectedFinishing
+                }
+
+                _token = nextToken
+
+                switch nextToken {
+                case .string(_):
+                    _nameBuffer = "-"
+                    try _optionalParam(context: &context)
+                case .dash:
+                    guard let nextNextToken = try _lexer.next() else {
+                        throw ParserError.unexpectedFinishing
+                    }
+                    
+                    _token = nextNextToken
+                    _nameBuffer = "--"
+                    try _optionalParam(context: &context)
+                case .uint(let ui):
+                    context.requiredParams.append(.int(Int(ui) * -1))
+                case .udecimal(let ud):
+                    context.requiredParams.append(.decimal(Double(ud) * -1.0))
+                default:
+                    throw ParserError.expectingStringOrNumber
+                }
             default:
                 throw ParserError.expectingStringOrDash
             }
@@ -67,16 +97,16 @@ internal struct _Parser {
                 switch _token! {
                 case .string(let str):
                     if !_isCommandInfoRoot {
-                        if str == _commandInfo.name {
+                        if str == _command.name {
                             context.subcommands.append(str)
                             _isCommandInfoRoot = true
                         } else {
                             context.requiredParams.append(.string(str))
                         }
                     } else {
-                        if _commandInfo.contains(subcommand: str) {
+                        if _command.contains(subcommand: str) {
                             context.subcommands.append(str)
-                            _commandInfo = _commandInfo.subcommands[str]!
+                            _command = _command.subcommands[str]!
                         } else {
                             context.requiredParams.append(.string(str))
                         }
@@ -150,7 +180,6 @@ internal struct _Parser {
             case expectingBlockSeparator
         }
 
-        _nameBuffer = ""
         var state = State.expectingName
 
         while _token != nil {
