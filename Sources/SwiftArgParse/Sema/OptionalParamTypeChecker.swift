@@ -7,9 +7,9 @@
 
 public struct OptionalParamTypeChecker {
 
-    public var typeInfo: [String: ParamType]
+    public var typeInfo: [String: Any.Type]
 
-    public init(typeInfo: [String: ParamType]) {
+    public init(typeInfo: [String: Any.Type]) {
         self.typeInfo = typeInfo
     }
 
@@ -20,8 +20,10 @@ public struct OptionalParamTypeChecker {
                 return .failure(.notFound(name: item.key))
             }
 
-            if !optionalParam.is(type: item.value) {
-                return .failure(.inconsistant(name: item.key, expecting: item.value, found: optionalParam.type))
+            let optionalParamT = type(of: optionalParam)
+
+            if optionalParamT != item.value {
+                return .failure(.inconsistant(name: item.key, expecting: item.value, found: optionalParamT))
             }
         }
 

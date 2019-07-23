@@ -67,9 +67,9 @@ internal struct _Parser {
                     _nameBuffer = "--"
                     try _optionalParam(context: &context)
                 case .uint(let ui):
-                    context.requiredParams.append(.int(Int(ui) * -1))
+                    context.requiredParams.append(Int(ui) * -1)
                 case .udecimal(let ud):
-                    context.requiredParams.append(.decimal(Double(ud) * -1.0))
+                    context.requiredParams.append(Double(ud) * -1.0)
                 default:
                     throw ParserError.expectingStringOrNumber
                 }
@@ -101,14 +101,14 @@ internal struct _Parser {
                             context.subcommands.append(str)
                             _isCommandInfoRoot = true
                         } else {
-                            context.requiredParams.append(.string(str))
+                            context.requiredParams.append(str)
                         }
                     } else {
                         if _command.contains(subcommand: str) {
                             context.subcommands.append(str)
                             _command = _command.subcommands[str]!
                         } else {
-                            context.requiredParams.append(.string(str))
+                            context.requiredParams.append(str)
                         }
                     }
 
@@ -144,13 +144,13 @@ internal struct _Parser {
             case .expectingValue:
                 switch _token! {
                 case .string(let str):
-                    context.requiredParams.append(.string(str))
+                    context.requiredParams.append(str)
                 case .boolean(let b):
-                    context.requiredParams.append(.boolean(b))
+                    context.requiredParams.append(b)
                 case .udecimal(let ud):
-                    context.requiredParams.append(.decimal(Double(ud)))
+                    context.requiredParams.append(ud)
                 case .uint(let ui):
-                    context.requiredParams.append(.int(Int(ui)))
+                    context.requiredParams.append(ui)
                 default:
                     throw ParserError.expectingString
                 }
@@ -199,7 +199,7 @@ internal struct _Parser {
                 case .assignment:
                     state = .expectingValue
                 case .blockSeparator:
-                    context.optionalParams[_nameBuffer] = .boolean(true)
+                    context.optionalParams[_nameBuffer] = true
                     _token = try _lexer.next()
                     return
                 default:
@@ -208,16 +208,16 @@ internal struct _Parser {
             case .expectingValue:
                 switch _token! {
                 case .boolean(let b):
-                    context.optionalParams[_nameBuffer] = .boolean(b)
+                    context.optionalParams[_nameBuffer] = b
                     state = .expectingBlockSeparator
                 case .string(let str):
-                    context.optionalParams[_nameBuffer] = .string(str)
+                    context.optionalParams[_nameBuffer] = str
                     state = .expectingBlockSeparator
                 case .udecimal(let ud):
-                    context.optionalParams[_nameBuffer] = .decimal(Double(ud))
+                    context.optionalParams[_nameBuffer] = Double(ud)
                     state = .expectingBlockSeparator
                 case .uint(let ui):
-                    context.optionalParams[_nameBuffer] = .int(Int(ui))
+                    context.optionalParams[_nameBuffer] = Int(ui)
                     state = .expectingBlockSeparator
                 case .dash:
                     state = .expectingNegativeValue
@@ -228,13 +228,13 @@ internal struct _Parser {
             case .expectingNegativeValue:
                 switch _token! {
                 case .boolean(let b):
-                    context.optionalParams[_nameBuffer] = .boolean(b)
+                    context.optionalParams[_nameBuffer] = b
                 case .string(let str):
-                    context.optionalParams[_nameBuffer] = .string(str)
+                    context.optionalParams[_nameBuffer] = str
                 case .udecimal(let ud):
-                    context.optionalParams[_nameBuffer] = .decimal(Double(ud) * -1.0)
+                    context.optionalParams[_nameBuffer] = Double(ud) * -1.0
                 case .uint(let ui):
-                    context.optionalParams[_nameBuffer] = .int(Int(ui) * -1)
+                    context.optionalParams[_nameBuffer] = Int(ui) * -1
                 default:
                     throw ParserError.expectingValue
                 }
@@ -253,7 +253,7 @@ internal struct _Parser {
         }
 
         if state == .expectingAssignmentOrBlockSeparatorOrFinish {
-            context.optionalParams[_nameBuffer] = .boolean(true)
+            context.optionalParams[_nameBuffer] = true
         }
     }
 }

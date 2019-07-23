@@ -11,8 +11,8 @@ import XCTest
 final class OptionalParamTypeCheckerTests: XCTestCase {
     func testTypeCheckingOK() {
         let checker = OptionalParamTypeChecker(typeInfo: [
-            "-str": .string,
-            "-b": .boolean
+            "-str": String.self,
+            "-b": Bool.self
         ])
 
         let context = try! ASTContext(from: ["-str=a", "-b"], commandInfo: Command(name: ""))
@@ -26,8 +26,8 @@ final class OptionalParamTypeCheckerTests: XCTestCase {
 
     func testTypeCheckingFail() {
         let checker = OptionalParamTypeChecker(typeInfo: [
-            "-str": .string,
-            "-b": .int
+            "-str": String.self,
+            "-b": Int.self
             ])
 
         let context = try! ASTContext(from: ["-str=a", "-b"], commandInfo: Command(name: ""))
@@ -39,7 +39,7 @@ final class OptionalParamTypeCheckerTests: XCTestCase {
         }
 
         XCTAssertEqual(name, "-b")
-        XCTAssertEqual(expecting, .int)
-        XCTAssertEqual(found, .boolean)
+        XCTAssert(expecting == Int.self)
+        XCTAssert(found == Bool.self)
     }
 }

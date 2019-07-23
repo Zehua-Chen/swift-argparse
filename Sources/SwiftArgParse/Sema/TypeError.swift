@@ -6,6 +6,6 @@
 //
 
 public enum TypeError: Error {
-    case inconsistant(name: String, expecting: ParamType, found: ParamType)
+    case inconsistant(name: String, expecting: Any.Type, found: Any.Type)
     case notFound(name: String)
 }

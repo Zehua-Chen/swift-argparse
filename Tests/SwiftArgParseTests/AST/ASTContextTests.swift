@@ -19,12 +19,12 @@ final class ASTContextTests: XCTestCase {
             "---e=billy herrington"
         ], commandInfo: Command(name: "test"))
 
-        XCTAssertEqual(context.optionalParams["-a"]!, .boolean(true))
-        XCTAssertEqual(context.optionalParams["-b"]!, .boolean(true))
-        XCTAssertEqual(context.optionalParams["--c"]!, .boolean(false))
-        XCTAssertEqual(context.optionalParams["-d"]!, .int(12))
-        XCTAssertEqual(context.optionalParams["--d"]!, .int(-12))
-        XCTAssertEqual(context.optionalParams["---e"]!, .string("billy herrington"))
+        XCTAssertEqual(context.optionalParams["-a"] as! Bool, true)
+        XCTAssertEqual(context.optionalParams["-b"] as! Bool, true)
+        XCTAssertEqual(context.optionalParams["--c"] as! Bool, false)
+        XCTAssertEqual(context.optionalParams["-d"] as! Int, 12)
+        XCTAssertEqual(context.optionalParams["--d"] as! Int, -12)
+        XCTAssertEqual(context.optionalParams["---e"] as! String, "billy herrington")
     }
 
     func testTrailingBooleanOptionalParam() {
@@ -33,8 +33,8 @@ final class ASTContextTests: XCTestCase {
             "-b",
         ], commandInfo: Command(name: ""))
 
-        XCTAssertEqual(context.optionalParams["-a"]!, .boolean(true))
-        XCTAssertEqual(context.optionalParams["-b"]!, .boolean(true))
+        XCTAssertEqual(context.optionalParams["-a"] as! Bool, true)
+        XCTAssertEqual(context.optionalParams["-b"] as! Bool, true)
     }
 
     func testSubcommands() {
@@ -53,7 +53,15 @@ final class ASTContextTests: XCTestCase {
         XCTAssertTrue(context.subcommands.contains("subcommand_1"))
         XCTAssertTrue(context.subcommands.contains("subcommand_2"))
         XCTAssertTrue(context.subcommands.contains("subcommand_3"))
-        XCTAssertTrue(context.requiredParams.contains(.string("required_param_2")))
-        XCTAssertTrue(context.requiredParams.contains(.int(-12)))
+
+        XCTAssertTrue(context.requiredParams.contains(where: {
+            guard let str = $0 as? String else { return false }
+            return str == "required_param_2"
+        }))
+
+        XCTAssertTrue(context.requiredParams.contains(where: {
+            guard let i = $0 as? Int else { return false }
+            return i == -12
+        }))
     }
 }
