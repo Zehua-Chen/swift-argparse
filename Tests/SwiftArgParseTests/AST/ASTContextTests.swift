@@ -27,6 +27,16 @@ final class ASTContextTests: XCTestCase {
         XCTAssertEqual(context.optionalParams["---e"]!, .string("billy herrington"))
     }
 
+    func testTrailingBooleanOptionalParam() {
+        let context = try! ASTContext(from: [
+            "-a=true",
+            "-b",
+        ], commandInfo: Command(name: ""))
+
+        XCTAssertEqual(context.optionalParams["-a"]!, .boolean(true))
+        XCTAssertEqual(context.optionalParams["-b"]!, .boolean(true))
+    }
+
     func testSubcommands() {
         let commandInfo = Command(name: "subcommand_1")
         let _ = commandInfo.add(subcommand: "subcommand_2")

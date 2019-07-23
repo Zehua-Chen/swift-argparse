@@ -174,7 +174,7 @@ internal struct _Parser {
     fileprivate mutating func _optionalParam(context: inout ASTContext) throws {
         enum State {
             case expectingName
-            case expectingAssignmentOrBlockSeparator
+            case expectingAssignmentOrBlockSeparatorOrFinish
             case expectingValue
             case expectingNegativeValue
             case expectingBlockSeparator
@@ -188,13 +188,13 @@ internal struct _Parser {
                 switch _token! {
                 case .string(let str):
                     _nameBuffer.append(str)
-                    state = .expectingAssignmentOrBlockSeparator
+                    state = .expectingAssignmentOrBlockSeparatorOrFinish
                 case .dash:
                     _nameBuffer.append("-")
                 default:
                     throw ParserError.expectingStringOrDash
                 }
-            case .expectingAssignmentOrBlockSeparator:
+            case .expectingAssignmentOrBlockSeparatorOrFinish:
                 switch _token! {
                 case .assignment:
                     state = .expectingValue
@@ -203,7 +203,7 @@ internal struct _Parser {
                     _token = try _lexer.next()
                     return
                 default:
-                    throw ParserError.expectingAssignmentOrBlockSeparator
+                    throw ParserError.expectingAssignmentOrBlockSeparatorOrFinish
                 }
             case .expectingValue:
                 switch _token! {
@@ -250,6 +250,10 @@ internal struct _Parser {
             }
 
             _token = try _lexer.next()
+        }
+
+        if state == .expectingAssignmentOrBlockSeparatorOrFinish {
+            context.optionalParams[_nameBuffer] = .boolean(true)
         }
     }
 }

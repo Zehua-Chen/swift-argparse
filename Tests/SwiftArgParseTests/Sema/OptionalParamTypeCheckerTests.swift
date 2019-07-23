@@ -8,7 +8,7 @@
 import XCTest
 @testable import SwiftArgParse
 
-final class OptionalParamTypeCheckerTests {
+final class OptionalParamTypeCheckerTests: XCTestCase {
     func testTypeCheckingOK() {
         let checker = OptionalParamTypeChecker(typeInfo: [
             "-str": .string,
