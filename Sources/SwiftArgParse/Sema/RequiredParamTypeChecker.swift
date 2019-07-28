@@ -29,25 +29,25 @@ public struct RequiredParamTypeChecker {
         var requiredParamIter = context.requiredParams.makeIterator()
         var requiredParamIndex = 0
         var typeInfoIter = self.typeInfo.makeIterator()
-        var currentTypeInfo = typeInfoIter.next()
+        var typeInfo = typeInfoIter.next()
 
         while let requiredParam = requiredParamIter.next() {
-            guard currentTypeInfo != nil else {
+            guard typeInfo != nil else {
                 return .failure(.overflow(index: requiredParamIndex))
             }
 
             let requiredParamType = type(of: requiredParam)
 
-            switch currentTypeInfo! {
+            switch typeInfo! {
             case .recurrsing(let expectedType):
                 if requiredParamType != expectedType {
-                    currentTypeInfo = typeInfoIter.next()
+                    typeInfo = typeInfoIter.next()
 
-                    guard currentTypeInfo != nil else {
+                    guard typeInfo != nil else {
                         return .failure(.inconsistant(index: requiredParamIndex, expecting: expectedType, found: requiredParamType))
                     }
 
-                    switch currentTypeInfo! {
+                    switch typeInfo! {
                     case .recurrsing(let futureExpectedType):
                         if futureExpectedType != requiredParamType {
                             return .failure(.inconsistant(index: requiredParamIndex, expecting: expectedType, found: requiredParamType))
@@ -57,7 +57,7 @@ public struct RequiredParamTypeChecker {
                             return .failure(.inconsistant(index: requiredParamIndex, expecting: expectedType, found: requiredParamType))
                         }
 
-                        currentTypeInfo = typeInfoIter.next()
+                        typeInfo = typeInfoIter.next()
                     }
                 }
 
@@ -66,7 +66,7 @@ public struct RequiredParamTypeChecker {
                     return .failure(.inconsistant(index: requiredParamIndex, expecting: expectedType, found: requiredParamType))
                 }
                 
-                currentTypeInfo = typeInfoIter.next()
+                typeInfo = typeInfoIter.next()
             }
 
             requiredParamIndex += 1

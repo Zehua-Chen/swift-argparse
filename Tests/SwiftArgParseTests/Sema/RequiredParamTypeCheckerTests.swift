@@ -14,7 +14,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
             subcommands: [""],
             requiredParams: ["a", "b", "c"],
             optionalParams: [:],
-            commandInfo: Command(name: ""))
+            command: Command(name: ""))
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self)
@@ -30,7 +30,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
             subcommands: [""],
             requiredParams: ["a", "b", 12],
             optionalParams: [:],
-            commandInfo: Command(name: ""))
+            command: Command(name: ""))
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self)
@@ -56,7 +56,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
             subcommands: [""],
             requiredParams: ["a", "b", 12, 22],
             optionalParams: [:],
-            commandInfo: Command(name: ""))
+            command: Command(name: ""))
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self),
@@ -73,7 +73,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
             subcommands: [""],
             requiredParams: ["a", "b", 12, 12.0, 12.0],
             optionalParams: [:],
-            commandInfo: Command(name: ""))
+            command: Command(name: ""))
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self),
@@ -92,7 +92,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
             subcommands: [""],
             requiredParams: ["a", "b", 12, 12.0, 12.0],
             optionalParams: [:],
-            commandInfo: Command(name: ""))
+            command: Command(name: ""))
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .single(type: Int.self),

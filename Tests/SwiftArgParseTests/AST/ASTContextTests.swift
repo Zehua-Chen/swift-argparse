@@ -17,7 +17,7 @@ final class ASTContextTests: XCTestCase {
             "-d=12",
             "--d=-12",
             "---e=billy herrington"
-        ], commandInfo: Command(name: "test"))
+        ], command: Command(name: "test"))
 
         XCTAssertEqual(context.optionalParams["-a"] as! Bool, true)
         XCTAssertEqual(context.optionalParams["-b"] as! Bool, true)
@@ -31,7 +31,7 @@ final class ASTContextTests: XCTestCase {
         let context = try! ASTContext(from: [
             "-a=true",
             "-b",
-        ], commandInfo: Command(name: ""))
+        ], command: Command(name: ""))
 
         XCTAssertEqual(context.optionalParams["-a"] as! Bool, true)
         XCTAssertEqual(context.optionalParams["-b"] as! Bool, true)
@@ -48,7 +48,7 @@ final class ASTContextTests: XCTestCase {
             "subcommand_3",
             "required_param_2",
             "-12"
-        ], commandInfo: commandInfo)
+        ], command: commandInfo)
 
         XCTAssertTrue(context.subcommands.contains("subcommand_1"))
         XCTAssertTrue(context.subcommands.contains("subcommand_2"))
