@@ -21,8 +21,6 @@ string
 string|boolean
 (dash) uint|udecimal
 ````
-
-- Required parameters of string types are treated like subcommands until the semantic stage.
 - Other required param types are treated as params
 
 ### Optional Parameters

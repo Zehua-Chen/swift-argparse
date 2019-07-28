@@ -77,7 +77,6 @@ internal struct _Lexer {
                 case "=":
                     return .string(buffer)
                 default:
-                    print("c = \(c)")
                     buffer.append(c)
                 }
             // '=' is a token, must return and not enumerate

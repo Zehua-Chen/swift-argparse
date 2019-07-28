@@ -18,4 +18,16 @@ public struct ASTContext {
         var parser = _Parser(args: args, rootCommand: commandInfo)
         try parser.parse(into: &self)
     }
+
+    public init(
+        subcommands: [String],
+        requiredParams: [Any],
+        optionalParams: [String:Any],
+        commandInfo: Command
+    ) {
+        self.subcommands = subcommands
+        self.requiredParams = requiredParams
+        self.optionalParams = optionalParams
+        self.commandInfo = commandInfo
+    }
 }
