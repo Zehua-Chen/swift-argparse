@@ -4,25 +4,30 @@
 //
 //  Created by Zehua Chen on 7/13/19.
 //
+
 public struct ASTContext {
 
-    public enum Value: Equatable {
-        case string(_ value: String)
-        case boolean(_ value: Bool)
-        case int(_ value: Int)
-        case decimal(_ value: Double)
-    }
+    public internal(set) var subcommands = [String]()
+    public internal(set) var requiredParams = [Any]()
+    public internal(set) var optionalParams = [String:Any]()
+    public internal(set) var command: Command
 
-    public static func `default`() throws -> ASTContext {
-        return try ASTContext(from: CommandLine.arguments)
-    }
+    public init(from args: [String], command: Command) throws {
+        self.command = command
 
-    public internal(set) var subcommands = Set<String>()
-    public internal(set) var requiredParams = Set<String>()
-    public internal(set) var optionalParams = [String: Value]()
-
-    public init(from args: [String]) throws {
-        var parser = _Parser(args: args)
+        var parser = _Parser(args: args, rootCommand: command)
         try parser.parse(into: &self)
+    }
+
+    public init(
+        subcommands: [String],
+        requiredParams: [Any],
+        optionalParams: [String:Any],
+        command: Command
+    ) {
+        self.subcommands = subcommands
+        self.requiredParams = requiredParams
+        self.optionalParams = optionalParams
+        self.command = command
     }
 }
