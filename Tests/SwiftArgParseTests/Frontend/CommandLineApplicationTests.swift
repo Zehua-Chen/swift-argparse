@@ -16,20 +16,19 @@ struct FooCommand: Command {
 final class CommandLineApplicationTests: XCTestCase {
     func testTreeConstruction() {
         var app = CommandLineApplication(name: "tools")
-
-        try! app.add(
-            command: FooCommand(),
-            path: ["tools", "test"])
-
-        try! app.add(
-            command: FooCommand(),
-            path: ["tools", "package", "generate"])
-
-        try! app.add(
-            command: FooCommand(),
-            path: ["tools", "package"])
-
         let rootNode = app._rootCommandNode
+
+        try! app.add(
+            path: ["tools", "test"],
+            command: FooCommand())
+
+        try! app.add(
+            path: ["tools", "package", "generate"],
+            command: FooCommand())
+
+        try! app.add(
+            path: ["tools", "package"],
+            command: FooCommand())
 
         // Test names
         XCTAssertEqual(rootNode.name, "tools")
@@ -40,5 +39,23 @@ final class CommandLineApplicationTests: XCTestCase {
         // Test commands
         XCTAssert(rootNode.command == nil)
         XCTAssert(rootNode.children["test"]?.command != nil)
+    }
+
+    func testRunWithoutOptionalParams() {
+        var app = CommandLineApplication(name: "tools")
+        var counter = 0
+
+        try! app.add(path: ["tools", "sub1"]) { _ in
+            counter += 1
+        }
+
+        try! app.add(path: ["tools"]) { _ in
+            counter += 10
+        }
+
+        try! app.run(with: ["tools", "sub1"])
+        try! app.run(with: ["tools"])
+
+        XCTAssertEqual(counter, 11)
     }
 }

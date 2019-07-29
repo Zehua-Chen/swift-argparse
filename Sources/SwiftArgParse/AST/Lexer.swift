@@ -16,6 +16,8 @@ internal struct _Lexer {
     /// The current source item being processed
     fileprivate var _item: _Source.Item?
 
+    fileprivate var _buffer: String = ""
+
     /// Create a new lexer using a specified source
     ///
     /// - Parameter source: the source to provide data to the lexer
@@ -48,7 +50,7 @@ internal struct _Lexer {
             case "f":
                 return try _boolean(literal: _Lexer._falseLiteral, value: false)
             case "a"..."z", "A"..."Z":
-                return try _string()
+                return try _string(cleanBuffer: true)
             case "0"..."9", ".":
                 return try _number()
             // if character is not recognized, throws ParserError
@@ -67,17 +69,20 @@ internal struct _Lexer {
     ///
     /// - Returns: a token, if there is one
     /// - Throws: `ParserError`
-    fileprivate mutating func _string() throws -> _Token? {
-        var buffer = ""
+    fileprivate mutating func _string(cleanBuffer: Bool) throws -> _Token? {
+
+        if cleanBuffer {
+            _buffer = ""
+        }
 
         while _item != nil && _item! != .blockSeparator {
             switch _item! {
             case .character(let c):
                 switch c {
                 case "=":
-                    return .string(buffer)
+                    return .string(_buffer)
                 default:
-                    buffer.append(c)
+                    _buffer.append(c)
                 }
             // '=' is a token, must return and not enumerate
             case .blockSeparator:
@@ -87,7 +92,7 @@ internal struct _Lexer {
             _item = _source.next()
         }
 
-        return .string(buffer)
+        return .string(_buffer)
     }
 
     /// Handles boolean token
@@ -106,8 +111,10 @@ internal struct _Lexer {
             switch _item! {
             case .character(let c):
                 if c != literal[index] {
-                    throw LexerError.unexpected(character: c)
+                    return try _string(cleanBuffer: false)
                 }
+
+                _buffer.append(c)
             case .blockSeparator:
                 break
             }
@@ -129,7 +136,7 @@ internal struct _Lexer {
     /// - Throws: `ParserError`
     fileprivate mutating func _number() throws -> _Token? {
         var isDecimal = false
-        var buffer = ""
+        _buffer = ""
 
         /// Compose a number token
         ///
@@ -137,13 +144,13 @@ internal struct _Lexer {
         /// - Throws: `ParserError`
         func compose() throws -> _Token {
             if isDecimal {
-                guard let d = Double(buffer) else {
+                guard let d = Double(_buffer) else {
                     throw LexerError.unableToParseNumber
                 }
 
                 return _Token.udecimal(d)
             } else {
-                guard let i = UInt(buffer) else {
+                guard let i = UInt(_buffer) else {
                     throw LexerError.unableToParseNumber
                 }
 
@@ -159,7 +166,7 @@ internal struct _Lexer {
                     isDecimal = true
                 }
                 
-                buffer.append(c)
+                _buffer.append(c)
             case .blockSeparator:
                 return try compose()
             }

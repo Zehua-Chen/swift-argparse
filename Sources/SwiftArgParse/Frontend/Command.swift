@@ -10,7 +10,8 @@ public protocol Command {
 }
 
 public struct ClosureCommand: Command {
-    let closure: (_ context: ASTContext) -> Void
+    public typealias Closure = (_ context: ASTContext) -> Void
+    let closure: Closure
 
     public func run(with context: ASTContext) {
         self.closure(context)
