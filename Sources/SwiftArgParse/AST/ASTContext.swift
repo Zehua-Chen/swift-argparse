@@ -7,27 +7,24 @@
 
 public struct ASTContext {
 
+    public typealias OptionalParamsType = [String:Any]
+
     public internal(set) var subcommands = [String]()
     public internal(set) var requiredParams = [Any]()
-    public internal(set) var optionalParams = [String:Any]()
-    public internal(set) var command: Command
+    public internal(set) var optionalParams = OptionalParamsType()
 
-    public init(from args: [String], command: Command) throws {
-        self.command = command
-
-        var parser = _Parser(args: args, rootCommand: command)
+    internal init(from args: [String], root: _CommandNode) throws {
+        var parser = _Parser(args: args, rootCommand: root)
         try parser.parse(into: &self)
     }
 
-    public init(
+    internal init(
         subcommands: [String],
         requiredParams: [Any],
-        optionalParams: [String:Any],
-        command: Command
+        optionalParams: [String:Any]
     ) {
         self.subcommands = subcommands
         self.requiredParams = requiredParams
         self.optionalParams = optionalParams
-        self.command = command
     }
 }

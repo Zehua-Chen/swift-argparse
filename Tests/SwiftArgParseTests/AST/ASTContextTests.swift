@@ -17,7 +17,7 @@ final class ASTContextTests: XCTestCase {
             "-d=12",
             "--d=-12",
             "---e=billy herrington"
-        ], command: Command(name: "test"))
+        ], root: _CommandNode(name: "test"))
 
         XCTAssertEqual(context.optionalParams["-a"] as! Bool, true)
         XCTAssertEqual(context.optionalParams["-b"] as! Bool, true)
@@ -31,16 +31,16 @@ final class ASTContextTests: XCTestCase {
         let context = try! ASTContext(from: [
             "-a=true",
             "-b",
-        ], command: Command(name: ""))
+        ], root: _CommandNode(name: ""))
 
         XCTAssertEqual(context.optionalParams["-a"] as! Bool, true)
         XCTAssertEqual(context.optionalParams["-b"] as! Bool, true)
     }
 
     func testSubcommands() {
-        let commandInfo = Command(name: "subcommand_1")
-        let _ = commandInfo.add(subcommand: "subcommand_2")
-            .add(subcommand: "subcommand_3")
+        let subcommand1 = _CommandNode(name: "subcommand_1")
+        let subcommand2 = subcommand1.add(subcommand: "subcommand_2")
+        let _ = subcommand2.add(subcommand: "subcommand_3")
 
         let context = try! ASTContext(from: [
             "subcommand_1",
@@ -48,7 +48,7 @@ final class ASTContextTests: XCTestCase {
             "subcommand_3",
             "required_param_2",
             "-12"
-        ], command: commandInfo)
+        ], root: subcommand1)
 
         XCTAssertTrue(context.subcommands.contains("subcommand_1"))
         XCTAssertTrue(context.subcommands.contains("subcommand_2"))
