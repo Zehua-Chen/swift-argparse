@@ -51,6 +51,31 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
         XCTAssert(found == Int.self)
     }
 
+    func testUnderflow() {
+        let context = ASTContext(
+            subcommands: [""],
+            requiredParams: [12, 12, 12],
+            optionalParams: [:],
+            command: Command(name: ""))
+
+        let checker = RequiredParamTypeChecker(typeInfo: [
+            .single(type: Int.self),
+            .single(type: Int.self),
+        ])
+
+        guard case .failure(let error) = checker.check(context: context) else {
+            XCTFail()
+            return
+        }
+
+        guard case .overflow(let index) = error else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(index, 2)
+    }
+
     func testMultipleRecurrsingSuccess() {
         let context = ASTContext(
             subcommands: [""],
@@ -98,7 +123,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
             .single(type: Int.self),
             .single(type: Int.self),
             .recurrsing(type: Double.self)
-            ])
+        ])
 
         guard case .failure(let error) = checker.check(context: context) else {
             XCTFail()
