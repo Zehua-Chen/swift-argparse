@@ -9,8 +9,8 @@ internal class _CommandNode {
     internal var name: String
     internal var children = [String:_CommandNode]()
 
-    internal var command: Command?
-    internal var optionalParams: ASTContext.OptionalParamsType?
+    internal var executor: Executor?
+    internal var defaultOptionalParams: ASTContext.OptionalParamsType?
 
     internal init(name: String) {
         self.name = name

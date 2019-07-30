@@ -8,27 +8,14 @@
 import XCTest
 @testable import SwiftArgParse
 
-struct FooCommand: Command {
-    func run(with context: ASTContext) {
-    }
-}
-
 final class CommandLineApplicationTests: XCTestCase {
     func testTreeConstruction() {
         var app = CommandLineApplication(name: "tools")
         let rootNode = app._rootCommandNode
 
-        try! app.add(
-            path: ["tools", "test"],
-            command: FooCommand())
-
-        try! app.add(
-            path: ["tools", "package", "generate"],
-            command: FooCommand())
-
-        try! app.add(
-            path: ["tools", "package"],
-            command: FooCommand())
+        try! app.add(path: ["tools", "test"]) { _ in }
+        try! app.add(path: ["tools", "package", "generate"]) { _ in }
+        try! app.add(path: ["tools", "package"]) { _ in }
 
         // Test names
         XCTAssertEqual(rootNode.name, "tools")
@@ -37,8 +24,8 @@ final class CommandLineApplicationTests: XCTestCase {
         XCTAssertEqual(rootNode.children["package"]!.children["generate"]!.name, "generate")
 
         // Test commands
-        XCTAssert(rootNode.command == nil)
-        XCTAssert(rootNode.children["test"]?.command != nil)
+        XCTAssert(rootNode.executor == nil)
+        XCTAssert(rootNode.children["test"]?.executor != nil)
     }
 
     func testRunWithoutOptionalParams() {
@@ -49,13 +36,17 @@ final class CommandLineApplicationTests: XCTestCase {
             counter += context.optionalParams["-data"] as! Int
         }
 
-        try! app.add(path: ["tools"], defaultOptionalParams: ["--data": -100]) { (context) in
+        var toolsCommand = try! app.add(path: ["tools"]) { (context) in
             counter += context.optionalParams["--data"] as! Int
         }
 
-        try! app.add(path: ["tools", "sub2"], defaultOptionalParams: ["--data": 100]) { (context) in
+        toolsCommand.defaultOptionalParams = ["--data": -100]
+
+        var sub2Command = try! app.add(path: ["tools", "sub2"]) { (context) in
             counter += context.optionalParams["--data"] as! Int
         }
+
+        sub2Command.defaultOptionalParams = ["--data": 100]
 
         try! app.run(with: ["tools", "sub1", "-data=1"])
         try! app.run(with: ["tools", "--data=10"])

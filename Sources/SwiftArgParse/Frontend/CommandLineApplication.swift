@@ -19,37 +19,22 @@ public struct CommandLineApplication {
         _rootCommandNode = _CommandNode(name: name)
     }
 
-    public mutating func add(
-        path: [String],
-        defaultOptionalParams: ASTContext.OptionalParamsType,
-        closure: @escaping ClosureCommand.Closure
-    ) throws {
-        try self.add(
-            path: path,
-            command: ClosureCommand(closure: closure),
-            defaultOptionalParams: defaultOptionalParams)
-    }
-
-    public mutating func add(
-        path: [String],
-        closure: @escaping ClosureCommand.Closure
-    ) throws {
-        try self.add(
-            path: path,
-            command: ClosureCommand(closure: closure),
-            defaultOptionalParams: nil)
-    }
-
-    public mutating func add<C: Command>(
-        path: [String],
-        command: C,
-        defaultOptionalParams: ASTContext.OptionalParamsType? = nil
-    ) throws {
+    @discardableResult
+    public mutating func add(path: [String]) throws -> Command {
         let subroot = try _complete(path: path)
 
-        // Don't want to temper with the node cursor if it is not moved
-        subroot.command = command
-        subroot.optionalParams = defaultOptionalParams
+        return Command(node: subroot)
+    }
+
+    @discardableResult
+    public mutating func add(
+        path: [String],
+        executor: @escaping ClosureExecutor.Closure
+    ) throws -> Command {
+        var command = try! self.add(path: path)
+        command.executor = ClosureExecutor(executor: executor)
+
+        return command
     }
 
     public func parseContext(with args: [String] = CommandLine.arguments) throws -> ASTContext {
@@ -62,14 +47,14 @@ public struct CommandLineApplication {
         var context = try ASTContext(from: args, root: _rootCommandNode)
         let subroot = try _trace(path: context.subcommands)
 
-        if subroot.command != nil {
-            if let subrootOptionalParams = subroot.optionalParams {
+        if subroot.executor != nil {
+            if let subrootOptionalParams = subroot.defaultOptionalParams {
                 context.optionalParams.merge(subrootOptionalParams, uniquingKeysWith: {
                     (a, b) in return a
                 })
             }
 
-            subroot.command!.run(with: context)
+            subroot.executor!.run(with: context)
         }
     }
 
