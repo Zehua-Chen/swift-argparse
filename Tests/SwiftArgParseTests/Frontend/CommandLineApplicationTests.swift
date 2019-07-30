@@ -45,17 +45,22 @@ final class CommandLineApplicationTests: XCTestCase {
         var app = CommandLineApplication(name: "tools")
         var counter = 0
 
-        try! app.add(path: ["tools", "sub1"]) { _ in
-            counter += 1
+        try! app.add(path: ["tools", "sub1"]) { (context) in
+            counter += context.optionalParams["-data"] as! Int
         }
 
-        try! app.add(path: ["tools"]) { _ in
-            counter += 10
+        try! app.add(path: ["tools"], defaultOptionalParams: ["--data": -100]) { (context) in
+            counter += context.optionalParams["--data"] as! Int
         }
 
-        try! app.run(with: ["tools", "sub1"])
-        try! app.run(with: ["tools"])
+        try! app.add(path: ["tools", "sub2"], defaultOptionalParams: ["--data": 100]) { (context) in
+            counter += context.optionalParams["--data"] as! Int
+        }
 
-        XCTAssertEqual(counter, 11)
+        try! app.run(with: ["tools", "sub1", "-data=1"])
+        try! app.run(with: ["tools", "--data=10"])
+        try! app.run(with: ["tools", "sub2"])
+
+        XCTAssertEqual(counter, 111)
     }
 }

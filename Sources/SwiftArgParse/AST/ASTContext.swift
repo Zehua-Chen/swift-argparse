@@ -18,7 +18,7 @@ public struct ASTContext {
         try parser.parse(into: &self)
     }
 
-    internal init(
+    public init(
         subcommands: [String],
         requiredParams: [Any],
         optionalParams: [String:Any]

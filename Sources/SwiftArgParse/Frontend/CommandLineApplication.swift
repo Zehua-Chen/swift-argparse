@@ -52,11 +52,23 @@ public struct CommandLineApplication {
         subroot.optionalParams = defaultOptionalParams
     }
 
-    public func run(with args: [String] = CommandLine.arguments) throws {
+    public func parseContext(with args: [String] = CommandLine.arguments) throws -> ASTContext {
         let context = try ASTContext(from: args, root: _rootCommandNode)
+        
+        return context
+    }
+
+    public func run(with args: [String] = CommandLine.arguments) throws {
+        var context = try ASTContext(from: args, root: _rootCommandNode)
         let subroot = try _trace(path: context.subcommands)
 
         if subroot.command != nil {
+            if let subrootOptionalParams = subroot.optionalParams {
+                context.optionalParams.merge(subrootOptionalParams, uniquingKeysWith: {
+                    (a, b) in return a
+                })
+            }
+
             subroot.command!.run(with: context)
         }
     }
