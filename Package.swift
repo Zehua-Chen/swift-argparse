@@ -10,6 +10,9 @@ let package = Package(
         .library(
             name: "SwiftArgParse",
             targets: ["SwiftArgParse"]),
+        .executable(
+            name: "example",
+            targets: ["example"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -21,6 +24,9 @@ let package = Package(
         .target(
             name: "SwiftArgParse",
             dependencies: []),
+        .target(
+            name: "example",
+            dependencies: ["SwiftArgParse"]),
         .testTarget(
             name: "SwiftArgParseTests",
             dependencies: ["SwiftArgParse"]),

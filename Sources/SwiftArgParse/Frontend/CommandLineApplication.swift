@@ -5,6 +5,8 @@
 //  Created by Zehua Chen on 7/29/19.
 //
 
+import Foundation
+
 public struct CommandLineApplication {
 
     public enum SubcommandError: Error {
@@ -15,7 +17,7 @@ public struct CommandLineApplication {
 
     internal var _rootCommandNode: _CommandNode
 
-    init(name: String) {
+    public init(name: String) {
         _rootCommandNode = _CommandNode(name: name)
     }
 
@@ -44,7 +46,10 @@ public struct CommandLineApplication {
     }
 
     public func run(with args: [String] = CommandLine.arguments) throws {
-        var context = try ASTContext(from: args, root: _rootCommandNode)
+        var rawArgs = args
+        rawArgs[0] = _lastComponent(rawArgs[0])
+
+        var context = try ASTContext(from: rawArgs, root: _rootCommandNode)
         let subroot = try _trace(path: context.subcommands)
 
         for stage in subroot.semanticStages {
@@ -108,5 +113,11 @@ public struct CommandLineApplication {
         }
 
         return subroot
+    }
+
+    fileprivate func _lastComponent(_ str: String) -> String {
+        let uri = URL(fileURLWithPath: str)
+
+        return uri.lastPathComponent
     }
 }

@@ -11,14 +11,15 @@
 ````swift
 import SwiftArgParse
 
-var app = CommandLineApplication(name: "tools")
-try! app.add(path: "test") { (context) in
-    print("tools-test")
-    print(context.optionalParams["-str"] as! String)
+var app = CommandLineApplication(name: "example")
+
+try! app.add(path: ["example"]) { (context) in
+print("example")
 }
 
-try! app.add(path: "package") { _ in
-    print("tools-package")
+try! app.add(path: ["example", "print"]) { (context) in
+print("required: \(context.requiredParams))")
+print("optional: \(context.optionalParams))")
 }
 
 try! app.run()
@@ -26,5 +27,5 @@ try! app.run()
 
 `bash`
 ````
-./tools test -boolean -str="hello world!"
+./example print -boolean -str="hello world!"
 ````
