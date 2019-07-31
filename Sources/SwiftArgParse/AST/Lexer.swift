@@ -35,6 +35,8 @@ internal struct _Lexer {
         // If _item is nil then returns
         guard _item != nil else { return nil }
 
+        _buffer = ""
+
         // Process _item accordingly
         switch _item! {
         case .character(let c):
@@ -50,7 +52,7 @@ internal struct _Lexer {
             case "f":
                 return try _boolean(literal: _Lexer._falseLiteral, value: false)
             case "a"..."z", "A"..."Z":
-                return try _string(cleanBuffer: true)
+                return try _string()
             case "0"..."9", ".":
                 return try _number()
             // if character is not recognized, throws ParserError
@@ -69,11 +71,7 @@ internal struct _Lexer {
     ///
     /// - Returns: a token, if there is one
     /// - Throws: `ParserError`
-    fileprivate mutating func _string(cleanBuffer: Bool) throws -> _Token? {
-
-        if cleanBuffer {
-            _buffer = ""
-        }
+    fileprivate mutating func _string() throws -> _Token? {
 
         while _item != nil && _item! != .blockSeparator {
             switch _item! {
@@ -111,7 +109,7 @@ internal struct _Lexer {
             switch _item! {
             case .character(let c):
                 if c != literal[index] {
-                    return try _string(cleanBuffer: false)
+                    return try _string()
                 }
 
                 _buffer.append(c)

@@ -36,22 +36,48 @@ final class CommandLineApplicationTests: XCTestCase {
             counter += context.optionalParams["-data"] as! Int
         }
 
-        var toolsCommand = try! app.add(path: ["tools"]) { (context) in
+        var toolsPath = try! app.add(path: ["tools"]) { (context) in
             counter += context.optionalParams["--data"] as! Int
         }
 
-        toolsCommand.defaultOptionalParams = ["--data": -100]
+        toolsPath.defaultOptionalParams = ["--data": -100]
 
-        var sub2Command = try! app.add(path: ["tools", "sub2"]) { (context) in
+        var sub2Path = try! app.add(path: ["tools", "sub2"]) { (context) in
             counter += context.optionalParams["--data"] as! Int
         }
 
-        sub2Command.defaultOptionalParams = ["--data": 100]
+        sub2Path.defaultOptionalParams = ["--data": 100]
 
         try! app.run(with: ["tools", "sub1", "-data=1"])
         try! app.run(with: ["tools", "--data=10"])
         try! app.run(with: ["tools", "sub2"])
 
         XCTAssertEqual(counter, 111)
+    }
+
+    func testPostProcessingStage() {
+        var app = CommandLineApplication(name: "tools")
+
+        let path = try! app.add(path: ["tools", "test"])
+        path.add(semanticStage: { (context) in
+            let checker = OptionalParamTypeChecker(typeInfo: [
+                "--str": String.self,
+                "--bool": Bool.self
+            ])
+
+            return checker.check(context: context).mapError { (err) in
+                return err as Error
+            }
+        })
+
+        var hasError = false
+
+        do {
+            try app.run(with: ["tools", "test", "--str=abc", "--bool=12"])
+        } catch {
+            hasError = true
+        }
+
+        XCTAssert(hasError)
     }
 }

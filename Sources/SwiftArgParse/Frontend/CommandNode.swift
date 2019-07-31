@@ -11,6 +11,7 @@ internal class _CommandNode {
 
     internal var executor: Executor?
     internal var defaultOptionalParams: ASTContext.OptionalParamsType?
+    internal var semanticStages = [SemanticStage]()
 
     internal init(name: String) {
         self.name = name

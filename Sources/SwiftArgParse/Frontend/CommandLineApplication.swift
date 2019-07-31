@@ -20,17 +20,17 @@ public struct CommandLineApplication {
     }
 
     @discardableResult
-    public mutating func add(path: [String]) throws -> Command {
+    public mutating func add(path: [String]) throws -> Path {
         let subroot = try _complete(path: path)
 
-        return Command(node: subroot)
+        return Path(node: subroot)
     }
 
     @discardableResult
     public mutating func add(
         path: [String],
         executor: @escaping ClosureExecutor.Closure
-    ) throws -> Command {
+    ) throws -> Path {
         var command = try! self.add(path: path)
         command.executor = ClosureExecutor(executor: executor)
 
@@ -46,6 +46,12 @@ public struct CommandLineApplication {
     public func run(with args: [String] = CommandLine.arguments) throws {
         var context = try ASTContext(from: args, root: _rootCommandNode)
         let subroot = try _trace(path: context.subcommands)
+
+        for stage in subroot.semanticStages {
+            if case .failure(let err) = stage(context) {
+                throw err
+            }
+        }
 
         if subroot.executor != nil {
             if let subrootOptionalParams = subroot.defaultOptionalParams {

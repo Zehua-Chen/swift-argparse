@@ -5,7 +5,9 @@
 //  Created by Zehua Chen on 7/30/19.
 //
 
-public struct Command {
+public typealias SemanticStage = (_ context: ASTContext) -> Result<(), Error>
+
+public struct Path {
     fileprivate var _node: _CommandNode
 
     public var defaultOptionalParams: ASTContext.OptionalParamsType? {
@@ -22,4 +24,7 @@ public struct Command {
         _node = node
     }
 
+    func add(semanticStage: @escaping SemanticStage) {
+        _node.semanticStages.append(semanticStage)
+    }
 }
