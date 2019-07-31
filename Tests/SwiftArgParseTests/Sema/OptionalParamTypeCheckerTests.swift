@@ -15,7 +15,7 @@ final class OptionalParamTypeCheckerTests: XCTestCase {
             "-b": Bool.self
         ])
 
-        let context = try! ASTContext(from: ["-str=a", "-b"], command: Command(name: ""))
+        let context = try! ASTContext(from: ["-str=a", "-b"], root: _CommandNode(name: ""))
         let result = checker.check(context: context)
 
         guard case .success(()) = result else {
@@ -30,7 +30,7 @@ final class OptionalParamTypeCheckerTests: XCTestCase {
             "-b": Int.self
             ])
 
-        let context = try! ASTContext(from: ["-str=a", "-b"], command: Command(name: ""))
+        let context = try! ASTContext(from: ["-str=a", "-b"], root: _CommandNode(name: ""))
         let result = checker.check(context: context)
 
         guard case .failure(.inconsistant(let name, let expecting, let found)) = result else {

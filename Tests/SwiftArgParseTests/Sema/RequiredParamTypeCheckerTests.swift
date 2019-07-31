@@ -13,8 +13,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
         let context = ASTContext(
             subcommands: [""],
             requiredParams: ["a", "b", "c"],
-            optionalParams: [:],
-            command: Command(name: ""))
+            optionalParams: [:])
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self)
@@ -29,8 +28,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
         let context = ASTContext(
             subcommands: [""],
             requiredParams: ["a", "b", 12],
-            optionalParams: [:],
-            command: Command(name: ""))
+            optionalParams: [:])
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self)
@@ -55,8 +53,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
         let context = ASTContext(
             subcommands: [""],
             requiredParams: [12, 12, 12],
-            optionalParams: [:],
-            command: Command(name: ""))
+            optionalParams: [:])
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .single(type: Int.self),
@@ -80,8 +77,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
         let context = ASTContext(
             subcommands: [""],
             requiredParams: ["a", "b", 12, 22],
-            optionalParams: [:],
-            command: Command(name: ""))
+            optionalParams: [:])
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self),
@@ -97,8 +93,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
         let context = ASTContext(
             subcommands: [""],
             requiredParams: ["a", "b", 12, 12.0, 12.0],
-            optionalParams: [:],
-            command: Command(name: ""))
+            optionalParams: [:])
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self),
@@ -116,8 +111,7 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
         let context = ASTContext(
             subcommands: [""],
             requiredParams: ["a", "b", 12, 12.0, 12.0],
-            optionalParams: [:],
-            command: Command(name: ""))
+            optionalParams: [:])
 
         let checker = RequiredParamTypeChecker(typeInfo: [
             .single(type: Int.self),

@@ -15,17 +15,17 @@ internal struct _Parser {
     fileprivate var _lexer: _Lexer
     fileprivate var _nameBuffer = ""
     fileprivate var _token: _Token!
-    fileprivate var _command: Command
+    fileprivate var _commandNode: _CommandNode
     fileprivate var _isCommandInfoRoot = false
     fileprivate var _position = _Position.subcommand
 
     /// Create a new parser from given command line args
     ///
     /// - Parameter args: the command line args to use
-    internal init(args: [String], rootCommand: Command) {
+    internal init(args: [String], rootCommand: _CommandNode) {
         _lexer = _Lexer(using: _Source(using: args[0...]))
         _token = try! _lexer.next()
-        _command = rootCommand
+        _commandNode = rootCommand
     }
 
     /// Parse into an ast context
@@ -97,16 +97,16 @@ internal struct _Parser {
                 switch _token! {
                 case .string(let str):
                     if !_isCommandInfoRoot {
-                        if str == _command.name {
+                        if str == _commandNode.name {
                             context.subcommands.append(str)
                             _isCommandInfoRoot = true
                         } else {
                             context.requiredParams.append(str)
                         }
                     } else {
-                        if _command.contains(subcommand: str) {
+                        if _commandNode.contains(subcommand: str) {
                             context.subcommands.append(str)
-                            _command = _command.subcommands[str]!
+                            _commandNode = _commandNode.children[str]!
                         } else {
                             context.requiredParams.append(str)
                         }
