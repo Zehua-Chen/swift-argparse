@@ -110,4 +110,15 @@ final class LexerTests: XCTestCase {
             .udecimal(123.23)
         ])
     }
+
+    func testPeek() {
+        let input = ["-positive=true"]
+        var lexer = _Lexer(using: _Source(using: input[...]))
+
+        XCTAssertEqual(try! lexer.peek(), .dash)
+        XCTAssertEqual(try! lexer.next(), .dash)
+        XCTAssertEqual(try! lexer.next(), .string("positive"))
+        XCTAssertEqual(try! lexer.peek(), .assignment)
+        XCTAssertEqual(try! lexer.next(), .assignment)
+    }
 }

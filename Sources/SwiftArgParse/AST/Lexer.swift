@@ -18,6 +18,8 @@ internal struct _Lexer {
 
     fileprivate var _buffer: String = ""
 
+    fileprivate var _peek: _Token?
+
     /// Create a new lexer using a specified source
     ///
     /// - Parameter source: the source to provide data to the lexer
@@ -32,6 +34,25 @@ internal struct _Lexer {
     /// - Returns: a token if there is one
     /// - Throws: `ParserError`
     internal mutating func next() throws -> _Token? {
+        if _peek != nil {
+            let peek = _peek
+            _peek = nil
+            
+            return peek
+        }
+
+        return try _extract()
+    }
+
+    internal mutating func peek() throws -> _Token? {
+        if _peek == nil {
+            _peek = try _extract()
+        }
+
+        return _peek
+    }
+
+    fileprivate mutating func _extract() throws -> _Token? {
         // If _item is nil then returns
         guard _item != nil else { return nil }
 
