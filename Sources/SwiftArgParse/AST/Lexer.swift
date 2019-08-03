@@ -18,7 +18,9 @@ internal struct _Lexer {
 
     fileprivate var _buffer: String = ""
 
-    fileprivate var _peek: _Token?
+    fileprivate var _peek: Token?
+
+    fileprivate var _isLastEndBlockReturned = false
 
     /// Create a new lexer using a specified source
     ///
@@ -33,7 +35,7 @@ internal struct _Lexer {
     ///
     /// - Returns: a token if there is one
     /// - Throws: `ParserError`
-    internal mutating func next() throws -> _Token? {
+    internal mutating func next() throws -> Token? {
         if _peek != nil {
             let peek = _peek
             _peek = nil
@@ -44,7 +46,7 @@ internal struct _Lexer {
         return try _extract()
     }
 
-    internal mutating func peek() throws -> _Token? {
+    internal mutating func peek() throws -> Token? {
         if _peek == nil {
             _peek = try _extract()
         }
@@ -52,9 +54,16 @@ internal struct _Lexer {
         return _peek
     }
 
-    fileprivate mutating func _extract() throws -> _Token? {
+    fileprivate mutating func _extract() throws -> Token? {
         // If _item is nil then returns
-        guard _item != nil else { return nil }
+        guard _item != nil else {
+            if !_isLastEndBlockReturned {
+                _isLastEndBlockReturned = true
+                return .endBlock
+            }
+            
+            return nil
+        }
 
         _buffer = ""
 
@@ -92,7 +101,7 @@ internal struct _Lexer {
     ///
     /// - Returns: a token, if there is one
     /// - Throws: `ParserError`
-    fileprivate mutating func _string() throws -> _Token? {
+    fileprivate mutating func _string() throws -> Token? {
 
         while _item != nil && _item! != .endBlock {
             switch _item! {
@@ -121,7 +130,7 @@ internal struct _Lexer {
     ///   - value: the boolean value to returns
     /// - Returns: a token, if there is one
     /// - Throws: `ParserError`
-    fileprivate mutating func _boolean(literal: String, value: Bool) throws -> _Token? {
+    fileprivate mutating func _boolean(literal: String, value: Bool) throws -> Token? {
         var index = literal.startIndex
         let endIndex = literal.endIndex
 
@@ -153,7 +162,7 @@ internal struct _Lexer {
     ///
     /// - Returns: a token, if there is one
     /// - Throws: `ParserError`
-    fileprivate mutating func _number() throws -> _Token? {
+    fileprivate mutating func _number() throws -> Token? {
         var isDecimal = false
         _buffer = ""
 
@@ -161,19 +170,19 @@ internal struct _Lexer {
         ///
         /// - Returns: a number token
         /// - Throws: `ParserError`
-        func compose() throws -> _Token {
+        func compose() throws -> Token {
             if isDecimal {
                 guard let d = Double(_buffer) else {
                     throw LexerError.unableToParseNumber
                 }
 
-                return _Token.udecimal(d)
+                return Token.udecimal(d)
             } else {
                 guard let i = UInt(_buffer) else {
                     throw LexerError.unableToParseNumber
                 }
 
-                return _Token.uint(i)
+                return Token.uint(i)
             }
         }
 
