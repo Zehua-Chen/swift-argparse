@@ -117,7 +117,7 @@ internal struct _Parser {
                     throw ParserError.expectingString
                 }
             case .expectingBlockSeparator:
-                if case .blockSeparator = _token! {
+                if case .endBlock = _token! {
                     _token = try _lexer.next()
                     return
                 }
@@ -157,7 +157,7 @@ internal struct _Parser {
 
                 state = .expectingBlockSeparator
             case .expectingBlockSeparator:
-                if case .blockSeparator = _token! {
+                if case .endBlock = _token! {
                     _token = try _lexer.next()
                     return
                 }
@@ -198,7 +198,7 @@ internal struct _Parser {
                 switch _token! {
                 case .assignment:
                     state = .expectingValue
-                case .blockSeparator:
+                case .endBlock:
                     context.optionalParams[_nameBuffer] = true
                     _token = try _lexer.next()
                     return
@@ -241,7 +241,7 @@ internal struct _Parser {
 
                 state = .expectingBlockSeparator
             case .expectingBlockSeparator:
-                if case .blockSeparator = _token! {
+                if case .endBlock = _token! {
                     _token = try _lexer.next()
                     return
                 }

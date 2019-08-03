@@ -9,19 +9,22 @@ internal struct _Source: Sequence, IteratorProtocol {
 
     internal enum Item: Equatable {
         case character(_ c: Character)
-        case blockSeparator
+        case endBlock
     }
 
     typealias Element = Item
+    typealias Input = ArraySlice<String>
 
-    fileprivate var _source: ArraySlice<String>
-    fileprivate var _blocksIterator: ArraySlice<String>.Iterator
+    fileprivate var _input: Input
+    /// An iterator used to navigate blocks
+    fileprivate var _blocksIterator: Input.Iterator
+    /// An iterator used to navigate a single block
     fileprivate var _blockIterator: String.Iterator?
     fileprivate var _block: String?
 
-    internal init(using source: ArraySlice<String>) {
-        _source = source
-        _blocksIterator = _source.makeIterator()
+    internal init(using input: Input) {
+        _input = input
+        _blocksIterator = _input.makeIterator()
         _blockIterator = _blocksIterator.next()?.makeIterator()
     }
 
@@ -35,7 +38,7 @@ internal struct _Source: Sequence, IteratorProtocol {
         if let block = _blocksIterator.next() {
             _block = block
             _blockIterator = _block?.makeIterator()
-            return .blockSeparator
+            return .endBlock
         }
 
         return nil

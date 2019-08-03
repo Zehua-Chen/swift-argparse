@@ -26,7 +26,7 @@ string|boolean
 ### Optional Parameters
 
 ````
-dash(s) string assignment (dash) string|uint|udecimal|boolean
+dash(s) string assignment/"end block" (dash) string|uint|udecimal|boolean
 ````
 
 - The first string, **combined with the dashes** is the `name`;

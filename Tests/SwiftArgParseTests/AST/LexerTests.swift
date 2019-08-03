@@ -25,9 +25,9 @@ final class LexerTests: XCTestCase {
         let tokens = try! tokenize(["=", "-", "--"])
         XCTAssertEqual(tokens, [
             .assignment,
-            .blockSeparator,
+            .endBlock,
             .dash,
-            .blockSeparator,
+            .endBlock,
             .dash,
             .dash
         ])
@@ -37,7 +37,7 @@ final class LexerTests: XCTestCase {
         let tokens = try! tokenize(["compile", "-name=billy herrington"])
         XCTAssertEqual(tokens, [
             .string("compile"),
-            .blockSeparator,
+            .endBlock,
             .dash,
             .string("name"),
             .assignment,
@@ -57,12 +57,12 @@ final class LexerTests: XCTestCase {
             .string("right"),
             .assignment,
             .boolean(true),
-            .blockSeparator,
+            .endBlock,
             .dash,
             .string("right"),
             .assignment,
             .boolean(false),
-            .blockSeparator,
+            .endBlock,
             .boolean(true),
             .assignment,
             .boolean(false)
@@ -82,7 +82,7 @@ final class LexerTests: XCTestCase {
             .string("positive"),
             .assignment,
             .uint(123),
-            .blockSeparator,
+            .endBlock,
             .dash,
             .string("negative"),
             .assignment,
@@ -102,7 +102,7 @@ final class LexerTests: XCTestCase {
             .string("positive"),
             .assignment,
             .udecimal(123.23),
-            .blockSeparator,
+            .endBlock,
             .dash,
             .string("negative"),
             .assignment,

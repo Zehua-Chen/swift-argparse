@@ -20,5 +20,5 @@ internal enum _Token: Equatable {
     case udecimal(_ value: Double)
     case dash
     case assignment
-    case blockSeparator
+    case endBlock
 }

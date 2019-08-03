@@ -1,8 +1,26 @@
 # Lexer 
 
-**The lexer only handle unsigned integers and decimals**, as the minus sign happens 
-to be the dash token. Signed integer and decimal processing are defered to AST
-composition stage.
+## Lexical Rules
+
+- **End block**: a block is defined to be an element in the command line argument 
+array; a block separator is defined to be the "space" between two blocks
+
+### Example
+
+````
+app -option=true
+````
+
+Should be lexed into
+
+- string
+- endBlock
+- dash
+- string
+- assignment
+- boolean(`true`)
+
+## Implementation
 
 ````swift
 internal enum _Token: Equatable {
@@ -23,18 +41,3 @@ internal enum _Token: Equatable {
 - **dash**: the `-` character
 - **assignment**: the `=` character
 - **blockSeparator**: the space between two chuncks of command line argument
-
-## Example
-
-````
-app -option=true
-````
-
-Should be lexed into
-
-- string
-- blockSeparator
-- dash
-- string
-- assignment
-- boolean(`true`)

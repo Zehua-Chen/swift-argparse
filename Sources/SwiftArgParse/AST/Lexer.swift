@@ -80,9 +80,9 @@ internal struct _Lexer {
             default:
                 throw LexerError.unexpected(character: c)
             }
-        case .blockSeparator:
+        case .endBlock:
             _item = _source.next()
-            return .blockSeparator
+            return .endBlock
         }
     }
 
@@ -94,7 +94,7 @@ internal struct _Lexer {
     /// - Throws: `ParserError`
     fileprivate mutating func _string() throws -> _Token? {
 
-        while _item != nil && _item! != .blockSeparator {
+        while _item != nil && _item! != .endBlock {
             switch _item! {
             case .character(let c):
                 switch c {
@@ -104,7 +104,7 @@ internal struct _Lexer {
                     _buffer.append(c)
                 }
             // '=' is a token, must return and not enumerate
-            case .blockSeparator:
+            case .endBlock:
                 break
             }
 
@@ -125,7 +125,7 @@ internal struct _Lexer {
         var index = literal.startIndex
         let endIndex = literal.endIndex
 
-        while _item != nil && _item! != .blockSeparator {
+        while _item != nil && _item! != .endBlock {
 
             switch _item! {
             case .character(let c):
@@ -134,7 +134,7 @@ internal struct _Lexer {
                 }
 
                 _buffer.append(c)
-            case .blockSeparator:
+            case .endBlock:
                 break
             }
 
@@ -177,7 +177,7 @@ internal struct _Lexer {
             }
         }
 
-        while _item != nil && _item! != .blockSeparator {
+        while _item != nil && _item! != .endBlock {
 
             switch _item! {
             case .character(let c):
@@ -186,7 +186,7 @@ internal struct _Lexer {
                 }
                 
                 _buffer.append(c)
-            case .blockSeparator:
+            case .endBlock:
                 return try compose()
             }
 
