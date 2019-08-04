@@ -25,23 +25,26 @@ string|boolean
 ### Optional Parameters
 
 ````
-dash(s) string assignment/"end block" string|bolean
+dash(s) string assignment/endBlock string|bolean
 ````
 
 ````
-dash(s) string assignment/"end block" (dash) uint|udecimal
+dash(s) string assignment/endBlock (dash) uint|udecimal
 ````
 
-- The first string, **combined with the dashes** is the `name`;
-- Whatever comes after the `assignment` is the `value`;
+- The first string, **combined with the dashes** is the `name` of an optional param;
+- Whatever comes after the `assignment` or `endBlock` is the `value`;
 
-A simpler form in which the optional param is considered to be a `boolean(true)` is 
-also allowed:
+An implicit `true` optional param is produced when
+
+- When the block is followed by what can be the start of a new optional param (dashes and 
+string);
+- When the block is the last one in the array
 
 ````
-dash(s) string dash(s) string
+dash(s) string endBlock dash(s) string ...
 ````
 
 ````
-dash(s) string
+dash(s) string endBlock
 ````

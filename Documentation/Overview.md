@@ -15,5 +15,4 @@ The command line arguments are defined to have three parts
 - **Required** and **optional** params must come after **subcommands** but do not 
 have to be ordered;
 - Even though **required** params can be mixed with optional params, **required** params 
-are stored with orders.
-- Errors are thrown if not all of the **required params** are present
+are stored with orders;
