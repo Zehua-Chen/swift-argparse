@@ -100,8 +100,40 @@ internal struct _Parser {
 
         switch token! {
         case .endBlock:
-            context.optionalParams[_buffer] = true
-            return
+            // If there are at least two more tokens ahead, the following
+            // syntax rules apply:
+            // - if peek_1 is dash and peek_2 is string or dash, then insert
+            //   a true optional param using the existing name
+            // - Otherwise, the upcoming block is considered to be a value
+            //   to be inserted as an optional param using the current name
+            // If there are no sufficient tokens ahead, then insert a "true"
+            // optional param using the existing name
+            var shouldInsertBool = false
+
+            if let peekA = try _lexer.peek(), let peekB = try _lexer.peek(offset: 1) {
+                if peekA == .dash {
+                    switch peekB {
+                    case .string(_), .dash:
+                        shouldInsertBool = true
+                        return
+                    default:
+                        break
+                    }
+                }
+            } else {
+                shouldInsertBool = true
+            }
+
+            if shouldInsertBool {
+                context.optionalParams[_buffer] = true
+                return
+            } else {
+                // Since if up coming value serves as a value in an optional
+                // param, the current token functions as a assignment
+                // token. Therefore, the same action has to be performed as
+                // if it is an assignment token.
+                token = try _lexer.next()
+            }
         case .assignment:
             token = try _lexer.next()
         default:

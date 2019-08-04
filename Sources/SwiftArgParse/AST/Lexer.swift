@@ -5,6 +5,14 @@
 //  Created by Zehua Chen on 6/7/19.
 //
 
+import SwiftQueue
+
+extension Queue {
+    var isEmpty: Bool {
+        return self.count <= 0
+    }
+}
+
 internal struct _Lexer {
     /// A "true" string literal, used to parse booleans
     fileprivate static let _trueLiteral = "true"
@@ -16,9 +24,9 @@ internal struct _Lexer {
     /// The current source item being processed
     fileprivate var _item: _Source.Item?
 
-    fileprivate var _buffer: String = ""
+    fileprivate var _queue = Queue<Token>()
 
-    fileprivate var _peek: Token?
+    fileprivate var _buffer: String = ""
 
     fileprivate var _isLastEndBlockReturned = false
 
@@ -36,22 +44,28 @@ internal struct _Lexer {
     /// - Returns: a token if there is one
     /// - Throws: `ParserError`
     internal mutating func next() throws -> Token? {
-        if _peek != nil {
-            let peek = _peek
-            _peek = nil
-            
-            return peek
+        if _queue.isEmpty {
+            return try _extract()
         }
 
-        return try _extract()
+        return _queue.dequeue()
     }
 
-    internal mutating func peek() throws -> Token? {
-        if _peek == nil {
-            _peek = try _extract()
+    internal mutating func peek(offset: Int = 0) throws -> Token? {
+        let count = offset + 1
+        
+        if count > _queue.count {
+            var diff = _queue.count - count
+            diff = diff < 0 ? 1 : diff
+
+            for _ in 0..<diff {
+                if let token = try _extract() {
+                    _queue.enqueue(token)
+                }
+            }
         }
 
-        return _peek
+        return _queue.peek(offset: offset)
     }
 
     fileprivate mutating func _extract() throws -> Token? {
@@ -155,7 +169,7 @@ internal struct _Lexer {
             }
         }
 
-        throw LexerError.expecting(string: literal)
+        return .string(_buffer)
     }
 
     /// Parse an **unsigned** number token, `-` is treated as dash

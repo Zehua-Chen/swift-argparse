@@ -4,7 +4,6 @@
 app-name command param -options...
 ````
 
-- Each declaration except the last one should end with a block separator token.
 - The parsed result is stored in `struct ASTContext`
 
 ## AST Rules
@@ -26,7 +25,11 @@ string|boolean
 ### Optional Parameters
 
 ````
-dash(s) string assignment/"end block" (dash) string|uint|udecimal|boolean
+dash(s) string assignment/"end block" string|bolean
+````
+
+````
+dash(s) string assignment/"end block" (dash) uint|udecimal
 ````
 
 - The first string, **combined with the dashes** is the `name`;
@@ -34,6 +37,10 @@ dash(s) string assignment/"end block" (dash) string|uint|udecimal|boolean
 
 A simpler form in which the optional param is considered to be a `boolean(true)` is 
 also allowed:
+
+````
+dash(s) string dash(s) string
+````
 
 ````
 dash(s) string

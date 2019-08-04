@@ -70,8 +70,6 @@ final class LexerTests: XCTestCase {
             .boolean(false),
             .endBlock
         ])
-
-        XCTAssertThrowsError(try tokenize(["tru"]))
     }
 
     func testInt() {
@@ -121,8 +119,11 @@ final class LexerTests: XCTestCase {
         var lexer = _Lexer(using: _Source(using: input[...]))
 
         XCTAssertEqual(try! lexer.peek(), .dash)
+        XCTAssertEqual(try! lexer.peek(offset: 1), .string("positive"))
+        
         XCTAssertEqual(try! lexer.next(), .dash)
         XCTAssertEqual(try! lexer.next(), .string("positive"))
+
         XCTAssertEqual(try! lexer.peek(), .assignment)
         XCTAssertEqual(try! lexer.next(), .assignment)
     }
