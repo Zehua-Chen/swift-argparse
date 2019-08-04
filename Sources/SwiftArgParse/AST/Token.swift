@@ -13,12 +13,12 @@
 /// - udecimal: unsigned decimal
 /// - dash: dash `-`
 /// - assignment: assignment `=`
-internal enum _Token: Equatable {
+public enum Token: Equatable {
     case string(_ value: String)
     case boolean(_ value: Bool)
     case uint(_ value: UInt)
     case udecimal(_ value: Double)
     case dash
     case assignment
-    case blockSeparator
+    case endBlock
 }

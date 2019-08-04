@@ -18,4 +18,8 @@ try! app.add(path: ["example", "print"]) { (context) in
     print("optional: \(context.optionalParams))")
 }
 
-try! app.run()
+do {
+   try app.run()
+} catch {
+    print(error)
+}

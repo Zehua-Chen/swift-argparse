@@ -35,10 +35,10 @@ final class SourceTests: XCTestCase {
         XCTAssertEqual(blocks, [
             .character("a"),
             .character("b"),
-            .blockSeparator,
+            .endBlock,
             .character("c"),
             .character("d"),
-            .blockSeparator,
+            .endBlock,
             .character("e"),
         ])
     }

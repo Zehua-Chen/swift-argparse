@@ -12,19 +12,21 @@ final class ASTContextTests: XCTestCase {
     func testOptionalParams() {
         let context = try! ASTContext(from: [
             "-a=true",
-            "-b",
-            "--c=false",
+            "--c",
+            "false",
             "-d=12",
             "--d=-12",
-            "---e=billy herrington"
+            "---e=billy herrington",
+            "-f",
+            "fff"
         ], root: _CommandNode(name: "test"))
 
         XCTAssertEqual(context.optionalParams["-a"] as! Bool, true)
-        XCTAssertEqual(context.optionalParams["-b"] as! Bool, true)
         XCTAssertEqual(context.optionalParams["--c"] as! Bool, false)
         XCTAssertEqual(context.optionalParams["-d"] as! Int, 12)
         XCTAssertEqual(context.optionalParams["--d"] as! Int, -12)
         XCTAssertEqual(context.optionalParams["---e"] as! String, "billy herrington")
+        XCTAssertEqual(context.optionalParams["-f"] as! String, "fff")
     }
 
     func testTrailingBooleanOptionalParam() {

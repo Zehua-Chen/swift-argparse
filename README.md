@@ -14,12 +14,12 @@ import SwiftArgParse
 var app = CommandLineApplication(name: "example")
 
 try! app.add(path: ["example"]) { (context) in
-print("example")
+    print("example")
 }
 
 try! app.add(path: ["example", "print"]) { (context) in
-print("required: \(context.requiredParams))")
-print("optional: \(context.optionalParams))")
+    print("required: \(context.requiredParams))")
+    print("optional: \(context.optionalParams))")
 }
 
 try! app.run()

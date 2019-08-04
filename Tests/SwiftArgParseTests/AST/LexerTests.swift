@@ -10,9 +10,9 @@ import XCTest
 
 final class LexerTests: XCTestCase {
 
-    func tokenize(_ data: [String]) throws -> [_Token] {
+    func tokenize(_ data: [String]) throws -> [Token] {
         var lexer = _Lexer(using: _Source(using: data[0...]))
-        var output = [_Token]()
+        var output = [Token]()
 
         while let token = try lexer.next() {
             output.append(token)
@@ -25,11 +25,12 @@ final class LexerTests: XCTestCase {
         let tokens = try! tokenize(["=", "-", "--"])
         XCTAssertEqual(tokens, [
             .assignment,
-            .blockSeparator,
+            .endBlock,
             .dash,
-            .blockSeparator,
+            .endBlock,
             .dash,
-            .dash
+            .dash,
+            .endBlock
         ])
     }
 
@@ -37,11 +38,12 @@ final class LexerTests: XCTestCase {
         let tokens = try! tokenize(["compile", "-name=billy herrington"])
         XCTAssertEqual(tokens, [
             .string("compile"),
-            .blockSeparator,
+            .endBlock,
             .dash,
             .string("name"),
             .assignment,
             .string("billy herrington"),
+            .endBlock
         ])
     }
 
@@ -57,18 +59,17 @@ final class LexerTests: XCTestCase {
             .string("right"),
             .assignment,
             .boolean(true),
-            .blockSeparator,
+            .endBlock,
             .dash,
             .string("right"),
             .assignment,
             .boolean(false),
-            .blockSeparator,
+            .endBlock,
             .boolean(true),
             .assignment,
-            .boolean(false)
+            .boolean(false),
+            .endBlock
         ])
-
-        XCTAssertThrowsError(try tokenize(["tru"]))
     }
 
     func testInt() {
@@ -82,12 +83,13 @@ final class LexerTests: XCTestCase {
             .string("positive"),
             .assignment,
             .uint(123),
-            .blockSeparator,
+            .endBlock,
             .dash,
             .string("negative"),
             .assignment,
             .dash,
-            .uint(123)
+            .uint(123),
+            .endBlock
         ])
     }
 
@@ -102,12 +104,27 @@ final class LexerTests: XCTestCase {
             .string("positive"),
             .assignment,
             .udecimal(123.23),
-            .blockSeparator,
+            .endBlock,
             .dash,
             .string("negative"),
             .assignment,
             .dash,
-            .udecimal(123.23)
+            .udecimal(123.23),
+            .endBlock
         ])
+    }
+
+    func testPeek() {
+        let input = ["-positive=true"]
+        var lexer = _Lexer(using: _Source(using: input[...]))
+
+        XCTAssertEqual(try! lexer.peek(), .dash)
+        XCTAssertEqual(try! lexer.peek(offset: 1), .string("positive"))
+        
+        XCTAssertEqual(try! lexer.next(), .dash)
+        XCTAssertEqual(try! lexer.next(), .string("positive"))
+
+        XCTAssertEqual(try! lexer.peek(), .assignment)
+        XCTAssertEqual(try! lexer.next(), .assignment)
     }
 }

@@ -7,24 +7,22 @@
 
 internal struct _Parser {
 
-    fileprivate enum _Position {
+    fileprivate enum _Region {
         case subcommand
         case params
     }
 
     fileprivate var _lexer: _Lexer
-    fileprivate var _nameBuffer = ""
-    fileprivate var _token: _Token!
+    fileprivate var _buffer = ""
+    fileprivate var _isRootCommandNode = true
     fileprivate var _commandNode: _CommandNode
-    fileprivate var _isCommandInfoRoot = false
-    fileprivate var _position = _Position.subcommand
+    fileprivate var _region = _Region.subcommand
 
     /// Create a new parser from given command line args
     ///
     /// - Parameter args: the command line args to use
     internal init(args: [String], rootCommand: _CommandNode) {
         _lexer = _Lexer(using: _Source(using: args[0...]))
-        _token = try! _lexer.next()
         _commandNode = rootCommand
     }
 
@@ -38,222 +36,196 @@ internal struct _Parser {
         // - Make sure the self._token to be handled in the next iteration is
         //   not _Token.blockSeparator, as a block separtor is supposed to end
         //   a declaration
-        while _token != nil {
-            switch _token! {
-            // Strings are considered to be subcommands.
-            // Semantic stage will handle moving the strings to required
-            // params
-            case .string(_):
-                try _subcommandOrRequiredParam(context: &context)
-            case .boolean(_), .udecimal(_), .uint(_):
-                try _requiredParamsWithoutDash(context: &context)
+        while let peek = try _lexer.peek() {
+            _buffer = ""
+            
+            switch peek {
             case .dash:
-                guard let nextToken = try _lexer.next() else {
-                    throw ParserError.unexpectedFinishing
-                }
+                try _dashStart(context: &context)
+            case .string(_):
+                try _string(context: &context)
+            case .udecimal(_), .uint(_), .boolean(_):
+                try _unsignedNonStringRequiredParam(context: &context)
+            default:
+                throw ParserError.unexpected(token: peek)
+            }
+        }
+    }
 
-                _token = nextToken
+    fileprivate mutating func _dashStart(context: inout ASTContext) throws {
+        guard let token = try _lexer.next() else {
+            throw ParserError.unexepctedEnd
+        }
 
-                switch nextToken {
-                case .string(_):
-                    _nameBuffer = "-"
-                    try _optionalParam(context: &context)
-                case .dash:
-                    guard let nextNextToken = try _lexer.next() else {
-                        throw ParserError.unexpectedFinishing
-                    }
-                    
-                    _token = nextNextToken
-                    _nameBuffer = "--"
-                    try _optionalParam(context: &context)
-                case .uint(let ui):
-                    context.requiredParams.append(Int(ui) * -1)
+        switch token {
+        case .dash:
+            _buffer.append("-")
+
+            if let peek = try _lexer.peek() {
+                switch peek {
+                case .dash, .string(_):
+                    return try _optionalParam(context: &context)
                 case .udecimal(let ud):
                     context.requiredParams.append(Double(ud) * -1.0)
-                default:
-                    throw ParserError.expectingStringOrNumber
-                }
-            default:
-                throw ParserError.expectingStringOrDash
-            }
-        }
-    }
-
-    /// Handle subcommand
-    ///
-    /// - Parameter context: the context to receive the subcommand
-    /// - Throws: `ParserError` or `LexerError`
-    fileprivate mutating func _subcommandOrRequiredParam(context: inout ASTContext) throws {
-        enum State {
-            case expectingString
-            case expectingBlockSeparator
-        }
-
-        var state = State.expectingString
-
-        while _token != nil {
-            switch state {
-            case .expectingString:
-                switch _token! {
-                case .string(let str):
-                    if !_isCommandInfoRoot {
-                        if str == _commandNode.name {
-                            context.subcommands.append(str)
-                            _isCommandInfoRoot = true
-                        } else {
-                            context.requiredParams.append(str)
-                        }
-                    } else {
-                        if _commandNode.contains(subcommand: str) {
-                            context.subcommands.append(str)
-                            _commandNode = _commandNode.children[str]!
-                        } else {
-                            context.requiredParams.append(str)
-                        }
-                    }
-
-                    state = .expectingBlockSeparator
-                default:
-                    throw ParserError.expectingString
-                }
-            case .expectingBlockSeparator:
-                if case .blockSeparator = _token! {
-                    _token = try _lexer.next()
-                    return
-                }
-            }
-
-            _token = try _lexer.next()
-        }
-    }
-
-    /// Handle required params
-    ///
-    /// - Parameter context: the context to receive the subcommand
-    /// - Throws: `ParserError` or `LexerError`
-    fileprivate mutating func _requiredParamsWithoutDash(context: inout ASTContext) throws {
-        enum State {
-            case expectingValue
-            case expectingBlockSeparator
-        }
-
-        var state = State.expectingValue
-
-        while _token != nil {
-            switch state {
-            case .expectingValue:
-                switch _token! {
-                case .string(let str):
-                    context.requiredParams.append(str)
-                case .boolean(let b):
-                    context.requiredParams.append(b)
-                case .udecimal(let ud):
-                    context.requiredParams.append(ud)
                 case .uint(let ui):
-                    context.requiredParams.append(ui)
+                    context.requiredParams.append(Int(ui) * -1)
                 default:
-                    throw ParserError.expectingString
-                }
-
-                state = .expectingBlockSeparator
-            case .expectingBlockSeparator:
-                if case .blockSeparator = _token! {
-                    _token = try _lexer.next()
-                    return
+                    throw ParserError.unexpected(token: token)
                 }
             }
-
-            _token = try _lexer.next()
+        default:
+            throw ParserError.unexpected(token: token)
         }
     }
 
-    /// Handle optional parameter
-    ///
-    /// - Parameter context: the context to receive the optional parameter
-    /// - Throws: `ParserError` or `LexerError`
     fileprivate mutating func _optionalParam(context: inout ASTContext) throws {
-        enum State {
-            case expectingName
-            case expectingAssignmentOrBlockSeparatorOrFinish
-            case expectingValue
-            case expectingNegativeValue
-            case expectingBlockSeparator
+        var token = try _lexer.next()
+        // Gather dashes
+        while token != nil && .dash == token! {
+            _buffer.append("-")
+            token = try _lexer.next()
         }
 
-        var state = State.expectingName
+        // Gather name
+        guard token != nil else { throw ParserError.unexepctedEnd }
+        guard case .string(let name) = token! else {
+            throw ParserError.unexpected(token: token!)
+        }
 
-        while _token != nil {
-            switch state {
-            case .expectingName:
-                switch _token! {
-                case .string(let str):
-                    _nameBuffer.append(str)
-                    state = .expectingAssignmentOrBlockSeparatorOrFinish
-                case .dash:
-                    _nameBuffer.append("-")
-                default:
-                    throw ParserError.expectingStringOrDash
-                }
-            case .expectingAssignmentOrBlockSeparatorOrFinish:
-                switch _token! {
-                case .assignment:
-                    state = .expectingValue
-                case .blockSeparator:
-                    context.optionalParams[_nameBuffer] = true
-                    _token = try _lexer.next()
-                    return
-                default:
-                    throw ParserError.expectingAssignmentOrBlockSeparatorOrFinish
-                }
-            case .expectingValue:
-                switch _token! {
-                case .boolean(let b):
-                    context.optionalParams[_nameBuffer] = b
-                    state = .expectingBlockSeparator
-                case .string(let str):
-                    context.optionalParams[_nameBuffer] = str
-                    state = .expectingBlockSeparator
-                case .udecimal(let ud):
-                    context.optionalParams[_nameBuffer] = Double(ud)
-                    state = .expectingBlockSeparator
-                case .uint(let ui):
-                    context.optionalParams[_nameBuffer] = Int(ui)
-                    state = .expectingBlockSeparator
-                case .dash:
-                    state = .expectingNegativeValue
-                default:
-                    throw ParserError.expectingValue
-                }
+        _buffer.append(name)
 
-            case .expectingNegativeValue:
-                switch _token! {
-                case .boolean(let b):
-                    context.optionalParams[_nameBuffer] = b
-                case .string(let str):
-                    context.optionalParams[_nameBuffer] = str
-                case .udecimal(let ud):
-                    context.optionalParams[_nameBuffer] = Double(ud) * -1.0
-                case .uint(let ui):
-                    context.optionalParams[_nameBuffer] = Int(ui) * -1
-                default:
-                    throw ParserError.expectingValue
-                }
+        // Gather assignment expression
+        token = try _lexer.next()
+        guard token != nil else { throw ParserError.unexepctedEnd }
 
-                state = .expectingBlockSeparator
-            case .expectingBlockSeparator:
-                if case .blockSeparator = _token! {
-                    _token = try _lexer.next()
-                    return
-                }
+        switch token! {
+        case .endBlock:
+            // If there are at least two more tokens ahead, the following
+            // syntax rules apply:
+            // - if peek_1 is dash and peek_2 is string or dash, then insert
+            //   a true optional param using the existing name
+            // - Otherwise, the upcoming block is considered to be a value
+            //   to be inserted as an optional param using the current name
+            // If there are no sufficient tokens ahead, then insert a "true"
+            // optional param using the existing name
+            var shouldInsertBool = false
 
-                throw ParserError.expectingBlockSeparator
+            if let peekA = try _lexer.peek(), let peekB = try _lexer.peek(offset: 1) {
+                if peekA == .dash {
+                    switch peekB {
+                    case .string(_), .dash:
+                        shouldInsertBool = true
+                        return
+                    default:
+                        break
+                    }
+                }
+            } else {
+                shouldInsertBool = true
             }
 
-            _token = try _lexer.next()
+            if shouldInsertBool {
+                context.optionalParams[_buffer] = true
+                return
+            } else {
+                // Since if up coming value serves as a value in an optional
+                // param, the current token functions as a assignment
+                // token. Therefore, the same action has to be performed as
+                // if it is an assignment token.
+                token = try _lexer.next()
+            }
+        case .assignment:
+            token = try _lexer.next()
+        default:
+            throw ParserError.unexpected(token: token!)
         }
 
-        if state == .expectingAssignmentOrBlockSeparatorOrFinish {
-            context.optionalParams[_nameBuffer] = true
+        guard token != nil else { throw ParserError.unexepctedEnd }
+
+        switch token! {
+        case .string(let str):
+            context.optionalParams[_buffer] = str
+        case .uint(let ui):
+            context.optionalParams[_buffer] = Int(ui)
+        case .udecimal(let ud):
+            context.optionalParams[_buffer] = Double(ud)
+        case .boolean(let b):
+            context.optionalParams[_buffer] = b
+        case .dash:
+            token = try _lexer.next()
+
+            guard token != nil else { throw ParserError.unexepctedEnd }
+
+            switch token! {
+            case .udecimal(let ud):
+                context.optionalParams[_buffer] = Double(ud) * -1.0
+            case .uint(let ui):
+                context.optionalParams[_buffer] = Int(ui) * -1
+            default:
+                throw ParserError.expecting(variantOf: [Token.udecimal(0), Token.uint(0)])
+            }
+        default:
+            throw ParserError.unexpected(token: token!)
         }
+
+        // Get endblock or nil
+        token = try _lexer.next()
+
+        guard token != nil else { throw ParserError.unexepctedEnd }
+        guard token! == .endBlock else { throw ParserError.expecting(token: .endBlock) }
+    }
+
+    fileprivate mutating func _unsignedNonStringRequiredParam(context: inout ASTContext) throws {
+        var token = try _lexer.next()
+        guard token != nil else { throw ParserError.unexepctedEnd }
+
+        switch token! {
+        case .boolean(let b):
+            context.requiredParams.append(b)
+        case .uint(let ui):
+            context.requiredParams.append(Int(ui))
+        case .udecimal(let ud):
+            context.requiredParams.append(Double(ud))
+        default:
+            throw ParserError.unexpected(token: token!)
+        }
+
+        token = try _lexer.next()
+        guard token != nil else { throw ParserError.unexepctedEnd }
+        guard token! == .endBlock else { throw ParserError.unexpected(token: token! )}
+    }
+
+    fileprivate mutating func _string(context: inout ASTContext) throws {
+        var token = try _lexer.next()
+        guard token != nil else { throw ParserError.unexepctedEnd }
+        guard case .string(let str) = token! else { throw ParserError.expecting(token: .string(""))  }
+
+        switch _region {
+        case .subcommand:
+            if _isRootCommandNode {
+                guard str == _commandNode.name else {
+                    throw ParserError.incorrectRootSubcommand(found: str, expecting: _commandNode.name)
+                }
+
+                _isRootCommandNode = false
+                context.subcommands.append(str)
+
+                break
+            }
+
+            if _commandNode.contains(subcommand: str) {
+                context.subcommands.append(str)
+                _commandNode = _commandNode.children[str]!
+            } else {
+                _region = .params
+                context.requiredParams.append(str)
+            }
+        case .params:
+            context.requiredParams.append(str)
+        }
+
+        token = try _lexer.next()
+        guard token != nil else { throw ParserError.unexepctedEnd }
+        guard token! == .endBlock else { throw ParserError.unexpected(token: token! )}
     }
 }

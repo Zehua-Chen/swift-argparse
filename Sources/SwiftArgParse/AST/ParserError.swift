@@ -7,16 +7,9 @@
 
 /// Error thrown during parsing (AST composition)
 public enum ParserError: Error {
-    /// Thrown when a block separator is expected
-    case expectingBlockSeparator
-    /// Thrown when a string
-    case expectingString
-    /// Thrown when a string or a dash is expected
-    case expectingStringOrDash
-    /// Thrown when a value (string, boolean, int, decimal) is expected
-    case expectingValue
-    /// Thrown when an assignment or a block separator is expected
-    case expectingAssignmentOrBlockSeparatorOrFinish
-    case unexpectedFinishing
-    case expectingStringOrNumber
+    case unexpected(token: Token)
+    case unexepctedEnd
+    case expecting(variantOf: [Token])
+    case expecting(token: Token)
+    case incorrectRootSubcommand(found: String, expecting: String)
 }
