@@ -24,7 +24,7 @@ final class CommandLineApplicationTests: XCTestCase {
         XCTAssertEqual(rootNode.children["package"]!.children["generate"]!.name, "generate")
 
         // Test commands
-        let testNode = rootNode.children["test"] as! _TerminalCommandNode
+        let testNode = rootNode.children["test"] as! _ExecutableCommandNode
 
         XCTAssertNotNil(testNode.executor)
     }

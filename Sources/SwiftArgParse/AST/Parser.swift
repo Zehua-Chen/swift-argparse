@@ -162,7 +162,7 @@ internal struct _Parser {
             case .uint(let ui):
                 context.optionalParams[_buffer] = Int(ui) * -1
             default:
-                throw ParserError.expecting(variantOf: [Token.udecimal(0), Token.uint(0)])
+                throw ParserError.unexpected(token: token!)
             }
         default:
             throw ParserError.unexpected(token: token!)
@@ -172,7 +172,9 @@ internal struct _Parser {
         token = try _lexer.next()
 
         guard token != nil else { throw ParserError.unexepctedEnd }
-        guard token! == .endBlock else { throw ParserError.expecting(token: .endBlock) }
+        guard token! == .endBlock else {
+            throw ParserError.expecting(token: .endBlock)
+        }
     }
 
     fileprivate mutating func _unsignedNonStringRequiredParam(context: inout ASTContext) throws {
@@ -198,7 +200,9 @@ internal struct _Parser {
     fileprivate mutating func _string(context: inout ASTContext) throws {
         var token = try _lexer.next()
         guard token != nil else { throw ParserError.unexepctedEnd }
-        guard case .string(let str) = token! else { throw ParserError.expecting(token: .string(""))  }
+        guard case .string(let str) = token! else {
+            throw ParserError.expecting(token: .string(""))
+        }
 
         switch _region {
         case .subcommand:

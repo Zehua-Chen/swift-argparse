@@ -9,10 +9,24 @@ import Foundation
 
 public struct CommandLineApplication {
 
-    public enum SubcommandError: Error {
+    public enum SubcommandError: Error, CustomStringConvertible {
         case incorrectRootName
         case pathEmpty
-        case pathNotFound
+        case pathNotFound(_ path: [String])
+        case pathNotExecutable(_ path: [String])
+
+        public var description: String {
+            switch self {
+            case .incorrectRootName:
+                return "In correct root name"
+            case .pathEmpty:
+                return "Path empty"
+            case .pathNotFound(let path):
+                return "\(path) not found"
+            case .pathNotExecutable(let path):
+                return "\(path) is not executable"
+            }
+        }
     }
 
     internal var _rootCommandNode: _CommandNode
@@ -52,7 +66,9 @@ public struct CommandLineApplication {
         var context = try ASTContext(from: rawArgs, root: _rootCommandNode)
         let subroot = try _trace(path: context.subcommands)
 
-        guard let terminal = subroot as? _TerminalCommandNode else { return }
+        guard let terminal = subroot as? _ExecutableCommandNode else {
+            throw SubcommandError.pathNotExecutable(context.subcommands)
+        }
 
         for stage in terminal.semanticStages {
             if case .failure(let err) = stage(context) {
@@ -71,20 +87,19 @@ public struct CommandLineApplication {
         }
     }
 
-    fileprivate mutating func _complete(path: [String]) throws -> _TerminalCommandNode {
+    fileprivate mutating func _complete(path: [String]) throws -> _ExecutableCommandNode {
         var subroot = _rootCommandNode
         var parent: _CommandNode? = nil
-        var pathIterator = path.makeIterator()
 
-        guard let rootPath = pathIterator.next() else {
+        guard !path.isEmpty else {
             throw SubcommandError.pathEmpty
         }
 
-        guard rootPath == _rootCommandNode.name else {
+        guard _rootCommandNode.name == path[0] else {
             throw SubcommandError.incorrectRootName
         }
 
-        while let p = pathIterator.next() {
+        for p in path[1...] {
             parent = subroot
 
             if subroot.contains(subcommand: p) {
@@ -94,7 +109,7 @@ public struct CommandLineApplication {
             }
         }
 
-        let terminal = _TerminalCommandNode(from: subroot)
+        let terminal = _ExecutableCommandNode(from: subroot)
         parent?.children[subroot.name] = terminal
 
         if subroot === _rootCommandNode {
@@ -106,21 +121,20 @@ public struct CommandLineApplication {
 
     fileprivate func _trace(path: [String]) throws -> _CommandNode {
         var subroot = _rootCommandNode
-        var pathIterator = path.makeIterator()
 
-        guard let rootPath = pathIterator.next() else {
+        guard !path.isEmpty else {
             throw SubcommandError.pathEmpty
         }
 
-        guard rootPath == _rootCommandNode.name else {
+        guard _rootCommandNode.name == path[0] else {
             throw SubcommandError.incorrectRootName
         }
 
-        while let p = pathIterator.next() {
-            if !subroot.contains(subcommand: p) {
-                throw SubcommandError.pathNotFound
-            } else {
+        for p in path[1...] {
+            if subroot.contains(subcommand: p) {
                 subroot = subroot.children[p]!
+            } else {
+                throw SubcommandError.pathNotFound(path)
             }
         }
 
