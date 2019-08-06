@@ -7,14 +7,11 @@
 
 internal class _CommandNode {
     internal var name: String
-    internal var children = [String:_CommandNode]()
+    internal var children: [String:_CommandNode]
 
-    internal var executor: Executor?
-    internal var defaultOptionalParams: ASTContext.OptionalParamsType?
-    internal var semanticStages = [SemanticStage]()
-
-    internal init(name: String) {
+    internal init(name: String, children: [String:_CommandNode] = [:]) {
         self.name = name
+        self.children = children
     }
 
     internal func add(subcommand: String) -> _CommandNode {

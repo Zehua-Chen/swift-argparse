@@ -23,9 +23,9 @@ public struct CommandLineApplication {
 
     @discardableResult
     public mutating func add(path: [String]) throws -> Path {
-        let subroot = try _complete(path: path)
+        let terminal = try _complete(path: path)
 
-        return Path(node: subroot)
+        return Path(node: terminal)
     }
 
     @discardableResult
@@ -52,25 +52,28 @@ public struct CommandLineApplication {
         var context = try ASTContext(from: rawArgs, root: _rootCommandNode)
         let subroot = try _trace(path: context.subcommands)
 
-        for stage in subroot.semanticStages {
+        guard let terminal = subroot as? _TerminalCommandNode else { return }
+
+        for stage in terminal.semanticStages {
             if case .failure(let err) = stage(context) {
                 throw err
             }
         }
 
-        if subroot.executor != nil {
-            if let subrootOptionalParams = subroot.defaultOptionalParams {
+        if terminal.executor != nil {
+            if let subrootOptionalParams = terminal.defaultOptionalParams {
                 context.optionalParams.merge(subrootOptionalParams, uniquingKeysWith: {
                     (a, b) in return a
                 })
             }
 
-            subroot.executor!.run(with: context)
+            terminal.executor!.run(with: context)
         }
     }
 
-    fileprivate func _complete(path: [String]) throws -> _CommandNode {
+    fileprivate mutating func _complete(path: [String]) throws -> _TerminalCommandNode {
         var subroot = _rootCommandNode
+        var parent: _CommandNode? = nil
         var pathIterator = path.makeIterator()
 
         guard let rootPath = pathIterator.next() else {
@@ -82,6 +85,8 @@ public struct CommandLineApplication {
         }
 
         while let p = pathIterator.next() {
+            parent = subroot
+
             if subroot.contains(subcommand: p) {
                 subroot = subroot.children[p]!
             } else {
@@ -89,7 +94,14 @@ public struct CommandLineApplication {
             }
         }
 
-        return subroot
+        let terminal = _TerminalCommandNode(from: subroot)
+        parent?.children[subroot.name] = terminal
+
+        if subroot === _rootCommandNode {
+            _rootCommandNode = terminal
+        }
+
+        return terminal
     }
 
     fileprivate func _trace(path: [String]) throws -> _CommandNode {

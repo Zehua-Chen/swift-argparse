@@ -8,7 +8,7 @@
 public typealias SemanticStage = (_ context: ASTContext) -> Result<(), Error>
 
 public struct Path {
-    fileprivate var _node: _CommandNode
+    fileprivate var _node: _TerminalCommandNode
 
     public var defaultOptionalParams: ASTContext.OptionalParamsType? {
         get { return _node.defaultOptionalParams }
@@ -20,7 +20,7 @@ public struct Path {
         set { _node.executor = newValue }
     }
 
-    internal init(node: _CommandNode) {
+    internal init(node: _TerminalCommandNode) {
         _node = node
     }
 

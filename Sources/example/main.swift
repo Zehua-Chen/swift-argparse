@@ -14,6 +14,7 @@ try! app.add(path: ["example"]) { (context) in
 }
 
 try! app.add(path: ["example", "print"]) { (context) in
+    print("example-print")
     print("required: \(context.requiredParams))")
     print("optional: \(context.optionalParams))")
 }
