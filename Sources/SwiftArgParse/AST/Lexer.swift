@@ -7,12 +7,6 @@
 
 import SwiftQueue
 
-extension Queue {
-    var isEmpty: Bool {
-        return self.count <= 0
-    }
-}
-
 internal struct _Lexer {
     /// A "true" string literal, used to parse booleans
     fileprivate static let _trueLiteral = "true"
