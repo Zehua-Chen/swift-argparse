@@ -37,8 +37,8 @@ let add = try! app.addPath(["example", "add"]) { (context) in
     print("\(a) + \(b) = \(c)")
 }
 
-add.registerUnnamedParam(Int.self)
-add.registerUnnamedParam(Int.self)
+add.addUnnamedParam(Int.self)
+add.addUnnamedParam(Int.self)
 
 do {
    try app.run()

@@ -72,7 +72,7 @@ public struct Path {
     ///   - type: the type of the param
     ///   - isRecurring: whether the param is recurring
     @inlinable
-    public func registerUnnamedParam<Param>(
+    public func addUnnamedParam<Param>(
         _ type: Param.Type,
         isRecurring: Bool = false
     ) {

@@ -1,7 +1,7 @@
 # AST
 
 ````
-app-name command param -options...
+app-name command unnamed_params -named_params...
 ````
 
 - The parsed result is stored in `struct ASTContext`

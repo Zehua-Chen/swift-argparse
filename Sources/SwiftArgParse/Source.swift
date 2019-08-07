@@ -22,6 +22,9 @@ internal struct _Source: Sequence, IteratorProtocol {
     fileprivate var _blockIterator: String.Iterator?
     fileprivate var _block: String?
 
+    /// Create a source from a given input
+    ///
+    /// - Parameter input: the input to use
     internal init(input: Input) {
         _input = input
         _blocksIterator = _input.makeIterator()

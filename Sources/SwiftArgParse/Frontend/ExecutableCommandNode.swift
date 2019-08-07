@@ -5,8 +5,11 @@
 //  Created by Zehua Chen on 8/6/19.
 //
 
+/// An executable command node represents a trailing subcommand of a path
 @usableFromInline
 internal class _ExecutableCommandNode: _CommandNode {
+
+    /// Executor of a command node
     internal var executor: Executor?
 
     // MARK: Named param related properties
@@ -33,8 +36,10 @@ internal class _ExecutableCommandNode: _CommandNode {
 
     // MARK: Semantic stage related properties
 
+    /// Custom semantic stages
     internal var customSemanticStage = [SemanticStage]()
 
+    /// Semantic stages of the executable command node
     internal var semanticStages: [SemanticStage] {
         var stages = [SemanticStage]()
 
@@ -59,6 +64,9 @@ internal class _ExecutableCommandNode: _CommandNode {
         return stages
     }
 
+    /// Create an executable command node from a command node
+    ///
+    /// - Parameter node: the node to create the executable command node from
     internal init(from node: _CommandNode) {
         super.init(name: node.name, children: node.children)
     }

@@ -31,10 +31,23 @@ public struct CommandLineApplication {
 
     internal var _rootCommandNode: _CommandNode
 
+    /// The name of the command line application
+    public var name: String {
+        return _rootCommandNode.name
+    }
+
+    /// Create a command line application using a name
+    ///
+    /// - Parameter name: name of the command line application
     public init(name: String) {
         _rootCommandNode = _CommandNode(name: name)
     }
 
+    /// Add a path to a command line application
+    ///
+    /// - Parameter path: the path
+    /// - Returns: a handle to the added path
+    /// - Throws: SubcommandError
     @discardableResult
     public mutating func addPath(_ path: [String]) throws -> Path {
         let terminal = try _completePath(path)
@@ -42,6 +55,13 @@ public struct CommandLineApplication {
         return Path(node: terminal)
     }
 
+    /// Add a path
+    ///
+    /// - Parameters:
+    ///   - path: the path
+    ///   - executor: the executor to be associated with the path
+    /// - Returns: a handle to the added path
+    /// - Throws: SubcommandError
     @discardableResult
     public mutating func addPath(
         _ path: [String],
@@ -53,15 +73,24 @@ public struct CommandLineApplication {
         return command
     }
 
+    /// Parse an ASTContext
+    ///
+    /// - Parameter args: command line arguments
+    /// - Returns: a parsed ASTContext
+    /// - Throws: any error associated with parsing
     public func parseContext(with args: [String] = CommandLine.arguments) throws -> ASTContext {
         var rawArgs = args
-        rawArgs[0] = _lastComponent(rawArgs[0])
+        rawArgs[0] = _lastComponent(of: rawArgs[0])
 
         let context = try ASTContext(args: rawArgs, root: _rootCommandNode)
         
         return context
     }
 
+    /// Run the application with the given command line arguments
+    ///
+    /// - Parameter args: the command line arguments to use
+    /// - Throws: any error
     public func run(with args: [String] = CommandLine.arguments) throws {
         var context = try parseContext(with: args)
         let subroot = try _tracePath(context.subcommands)
@@ -85,6 +114,11 @@ public struct CommandLineApplication {
         }
     }
 
+    /// Complete a path
+    ///
+    /// - Parameter path: the path
+    /// - Returns: the executable command node inserted during completion
+    /// - Throws: SubcommandError
     fileprivate mutating func _completePath(_ path: [String]) throws -> _ExecutableCommandNode {
         var subroot = _rootCommandNode
         var parent: _CommandNode? = nil
@@ -117,6 +151,11 @@ public struct CommandLineApplication {
         return terminal
     }
 
+    /// Trace a given path
+    ///
+    /// - Parameter path: a path
+    /// - Returns: the command node at the end of the path
+    /// - Throws: SubcommandError
     fileprivate func _tracePath(_ path: [String]) throws -> _CommandNode {
         var subroot = _rootCommandNode
 
@@ -139,7 +178,11 @@ public struct CommandLineApplication {
         return subroot
     }
 
-    fileprivate func _lastComponent(_ str: String) -> String {
+    /// Get the last component of a file path
+    ///
+    /// - Parameter str: a file path
+    /// - Returns: the last componet of the inputed file path string
+    fileprivate func _lastComponent(of str: String) -> String {
         let uri = URL(fileURLWithPath: str)
 
         return uri.lastPathComponent
