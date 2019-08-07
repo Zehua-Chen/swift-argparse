@@ -10,9 +10,8 @@ public typealias SemanticStage = (_ context: ASTContext) -> Result<(), Error>
 public struct Path {
     fileprivate var _node: _ExecutableCommandNode
 
-    public var defaultOptionalParams: ASTContext.OptionalParamsType? {
+    public var defaultOptionalParams: [String: Any] {
         get { return _node.defaultOptionalParams }
-        set { _node.defaultOptionalParams = newValue }
     }
 
     public var executor: Executor? {
@@ -24,7 +23,15 @@ public struct Path {
         _node = node
     }
 
-    func add(semanticStage: @escaping SemanticStage) {
-        _node.semanticStages.append(semanticStage)
+    public func add<Param>(
+        optionalParam name: String,
+        type: Param.Type
+    ) {
+        _node.optionalParamTypeChecker.paramInfo[name] = type
+    }
+
+    public func add<Param>(optionalParam name: String, defaultValue: Param) {
+        _node.optionalParamTypeChecker.paramInfo[name] = Param.self
+        _node.defaultOptionalParams[name] = defaultValue
     }
 }

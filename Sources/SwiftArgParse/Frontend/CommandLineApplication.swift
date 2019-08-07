@@ -70,6 +70,10 @@ public struct CommandLineApplication {
             throw SubcommandError.pathNotExecutable(context.subcommands)
         }
 
+        context.optionalParams.merge(terminal.defaultOptionalParams, uniquingKeysWith: {
+            (a, b) in return a
+        })
+
         for stage in terminal.semanticStages {
             if case .failure(let err) = stage(context) {
                 throw err
@@ -77,12 +81,6 @@ public struct CommandLineApplication {
         }
 
         if terminal.executor != nil {
-            if let subrootOptionalParams = terminal.defaultOptionalParams {
-                context.optionalParams.merge(subrootOptionalParams, uniquingKeysWith: {
-                    (a, b) in return a
-                })
-            }
-
             terminal.executor!.run(with: context)
         }
     }

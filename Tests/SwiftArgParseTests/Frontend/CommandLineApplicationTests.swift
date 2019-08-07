@@ -37,17 +37,17 @@ final class CommandLineApplicationTests: XCTestCase {
             counter += context.optionalParams["-data"] as! Int
         }
 
-        var toolsPath = try! app.add(path: ["tools"]) { (context) in
+        let toolsPath = try! app.add(path: ["tools"]) { (context) in
             counter += context.optionalParams["--data"] as! Int
         }
 
-        toolsPath.defaultOptionalParams = ["--data": -100]
+        toolsPath.add(optionalParam: "--data", defaultValue: -100)
 
-        var sub2Path = try! app.add(path: ["tools", "sub2"]) { (context) in
+        let sub2Path = try! app.add(path: ["tools", "sub2"]) { (context) in
             counter += context.optionalParams["--data"] as! Int
         }
 
-        sub2Path.defaultOptionalParams = ["--data": 100]
+        sub2Path.add(optionalParam: "--data", defaultValue: 100)
 
         try! app.run(with: ["tools", "sub1", "-data=1"])
         try! app.run(with: ["tools", "--data=10"])
@@ -60,16 +60,8 @@ final class CommandLineApplicationTests: XCTestCase {
         var app = CommandLineApplication(name: "tools")
 
         let path = try! app.add(path: ["tools", "test"])
-        path.add(semanticStage: { (context) in
-            let checker = OptionalParamTypeChecker(typeInfo: [
-                "--str": String.self,
-                "--bool": Bool.self
-            ])
-
-            return checker.check(context: context).mapError { (err) in
-                return err as Error
-            }
-        })
+        path.add(optionalParam: "--str", type: String.self)
+        path.add(optionalParam: "--bool", type: String.self)
 
         var hasError = false
 

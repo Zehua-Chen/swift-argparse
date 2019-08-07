@@ -8,9 +8,9 @@
 import XCTest
 @testable import SwiftArgParse
 
-final class OptionalParamTypeCheckerTests: XCTestCase {
+final class OptionalParamCheckerTests: XCTestCase {
     func testTypeCheckingOK() {
-        let checker = OptionalParamTypeChecker(typeInfo: [
+        let checker = OptionalParamChecker(typeInfo: [
             "-str": String.self,
             "-b": Bool.self
         ])
@@ -25,7 +25,7 @@ final class OptionalParamTypeCheckerTests: XCTestCase {
     }
 
     func testTypeCheckingFail() {
-        let checker = OptionalParamTypeChecker(typeInfo: [
+        let checker = OptionalParamChecker(typeInfo: [
             "-str": String.self,
             "-b": Int.self
             ])

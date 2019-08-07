@@ -10,17 +10,19 @@ public enum OptionalParamTypeCheckerError: Error {
     case notFound(name: String)
 }
 
-public struct OptionalParamTypeChecker {
+public struct OptionalParamChecker {
 
     /// Type information
-    public var typeInfo: [String: Any.Type]
+    public var paramInfo = [String: Any.Type]()
+
+    public init() {}
 
     /// Construct an optional param type checker using provided
     /// type information
     ///
     /// - Parameter typeInfo: the type information
     public init(typeInfo: [String: Any.Type]) {
-        self.typeInfo = typeInfo
+        self.paramInfo = typeInfo
     }
 
     /// Check a given ast context
@@ -30,7 +32,7 @@ public struct OptionalParamTypeChecker {
     /// .failure(OptionalParamTypeCheckerError)
     public func check(context: ASTContext) -> Result<(), OptionalParamTypeCheckerError> {
 
-        for item in self.typeInfo {
+        for item in self.paramInfo {
             guard let optionalParam = context.optionalParams[item.key] else {
                 return .failure(.notFound(name: item.key))
             }
