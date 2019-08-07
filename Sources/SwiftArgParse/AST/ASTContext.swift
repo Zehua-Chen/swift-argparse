@@ -10,7 +10,7 @@ public struct ASTContext {
     public internal(set) var unnamedParams = [Any]()
     public internal(set) var namedParams = [String:Any]()
 
-    internal init(from args: [String], root: _CommandNode) throws {
+    internal init(args: [String], root: _CommandNode) throws {
         var parser = _Parser(args: args, rootCommand: root)
         try parser.parse(into: &self)
     }

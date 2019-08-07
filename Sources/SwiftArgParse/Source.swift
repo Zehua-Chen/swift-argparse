@@ -22,7 +22,7 @@ internal struct _Source: Sequence, IteratorProtocol {
     fileprivate var _blockIterator: String.Iterator?
     fileprivate var _block: String?
 
-    internal init(using input: Input) {
+    internal init(input: Input) {
         _input = input
         _blocksIterator = _input.makeIterator()
         _blockIterator = _blocksIterator.next()?.makeIterator()

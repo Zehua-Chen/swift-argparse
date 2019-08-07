@@ -34,7 +34,7 @@ public struct UnnamedParamTypeChecker {
     /// - Parameter context: the context to check
     /// - Returns: .success(()) if no type errors, otherwise, return
     /// .failure(UnnamedParamTypeCheckerError)
-    public func check(context: ASTContext) -> Result<(), UnnamedParamTypeCheckerError> {
+    public func check(against context: ASTContext) -> Result<(), UnnamedParamTypeCheckerError> {
         var unnamedParamIter = context.unnamedParams.makeIterator()
         var unnamedParamIndex = 0
         var paramInfoIter = self.paramInfo.makeIterator()

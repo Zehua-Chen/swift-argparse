@@ -21,7 +21,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .single(type: Int.self)
         ])
 
-        guard case .failure(let error) = checker.check(context: context) else {
+        guard case .failure(let error) = checker.check(against: context) else {
             XCTFail()
             return
         }
@@ -34,6 +34,23 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
         XCTAssertEqual(index, 0)
     }
 
+    func testNonRecurringSuccess() {
+        let context = ASTContext(
+            subcommands: [""],
+            unnamedParams: ["a", "b", "c"],
+            namedParams: [:])
+
+        let checker = UnnamedParamTypeChecker(paramInfo: [
+            .single(type: String.self),
+            .single(type: String.self),
+            .single(type: String.self)
+        ])
+
+        if case .failure(let error) = checker.check(against: context) {
+            XCTFail(String(describing: error))
+        }
+    }
+
     func testSingleRecurringSuccess() {
         let context = ASTContext(
             subcommands: [""],
@@ -44,7 +61,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: String.self)
         ])
 
-        if case .failure(let error) = checker.check(context: context) {
+        if case .failure(let error) = checker.check(against: context) {
             XCTFail(String(describing: error))
         }
     }
@@ -59,7 +76,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: String.self)
         ])
 
-        guard case .failure(let error) = checker.check(context: context) else {
+        guard case .failure(let error) = checker.check(against: context) else {
             XCTFail()
             return
         }
@@ -85,7 +102,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .single(type: Int.self),
         ])
 
-        guard case .failure(let error) = checker.check(context: context) else {
+        guard case .failure(let error) = checker.check(against: context) else {
             XCTFail()
             return
         }
@@ -109,7 +126,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: Int.self)
         ])
 
-        if case .failure(_) = checker.check(context: context) {
+        if case .failure(_) = checker.check(against: context) {
             XCTFail()
         }
     }
@@ -126,7 +143,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: Double.self)
         ])
 
-        guard case .success = checker.check(context: context) else {
+        guard case .success = checker.check(against: context) else {
             XCTFail()
             return
         }
@@ -144,7 +161,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: Double.self)
         ])
 
-        guard case .failure(let error) = checker.check(context: context) else {
+        guard case .failure(let error) = checker.check(against: context) else {
             XCTFail()
             return
         }

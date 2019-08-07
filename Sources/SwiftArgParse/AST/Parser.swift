@@ -22,7 +22,7 @@ internal struct _Parser {
     ///
     /// - Parameter args: the command line args to use
     internal init(args: [String], rootCommand: _CommandNode) {
-        _lexer = _Lexer(using: _Source(using: args[0...]))
+        _lexer = _Lexer(source: _Source(input: args[0...]))
         _commandNode = rootCommand
     }
 
@@ -41,18 +41,18 @@ internal struct _Parser {
             
             switch peek {
             case .dash:
-                try _dashStart(context: &context)
+                try _dashStart(into: &context)
             case .string(_):
-                try _string(context: &context)
+                try _string(into: &context)
             case .udecimal(_), .uint(_), .boolean(_):
-                try _unsignedNonStringUnnamedParam(context: &context)
+                try _unsignedNonStringUnnamedParam(into: &context)
             default:
                 throw ParserError.unexpected(token: peek)
             }
         }
     }
 
-    fileprivate mutating func _dashStart(context: inout ASTContext) throws {
+    fileprivate mutating func _dashStart(into context: inout ASTContext) throws {
         guard let token = try _lexer.next() else {
             throw ParserError.unexepctedEnd
         }
@@ -64,7 +64,7 @@ internal struct _Parser {
             if let peek = try _lexer.peek() {
                 switch peek {
                 case .dash, .string(_):
-                    return try _namedParam(context: &context)
+                    return try _namedParam(into: &context)
                 case .udecimal(let ud):
                     context.unnamedParams.append(Double(ud) * -1.0)
                 case .uint(let ui):
@@ -78,7 +78,7 @@ internal struct _Parser {
         }
     }
 
-    fileprivate mutating func _namedParam(context: inout ASTContext) throws {
+    fileprivate mutating func _namedParam(into context: inout ASTContext) throws {
         var token = try _lexer.next()
         // Gather dashes
         while token != nil && .dash == token! {
@@ -177,7 +177,7 @@ internal struct _Parser {
         }
     }
 
-    fileprivate mutating func _unsignedNonStringUnnamedParam(context: inout ASTContext) throws {
+    fileprivate mutating func _unsignedNonStringUnnamedParam(into context: inout ASTContext) throws {
         var token = try _lexer.next()
         guard token != nil else { throw ParserError.unexepctedEnd }
 
@@ -197,7 +197,7 @@ internal struct _Parser {
         guard token! == .endBlock else { throw ParserError.unexpected(token: token! )}
     }
 
-    fileprivate mutating func _string(context: inout ASTContext) throws {
+    fileprivate mutating func _string(into context: inout ASTContext) throws {
         var token = try _lexer.next()
         guard token != nil else { throw ParserError.unexepctedEnd }
         guard case .string(let str) = token! else {
@@ -217,7 +217,7 @@ internal struct _Parser {
                 break
             }
 
-            if _commandNode.contains(subcommand: str) {
+            if _commandNode.containsSubcommand(str) {
                 context.subcommands.append(str)
                 _commandNode = _commandNode.children[str]!
             } else {

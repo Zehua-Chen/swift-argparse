@@ -15,8 +15,8 @@ final class NamedParamCheckerTests: XCTestCase {
             "-b": Bool.self
         ])
 
-        let context = try! ASTContext(from: ["-str=a", "-b"], root: _CommandNode(name: ""))
-        let result = checker.check(context: context)
+        let context = try! ASTContext(args: ["-str=a", "-b"], root: _CommandNode(name: ""))
+        let result = checker.checkContext(context)
 
         guard case .success(()) = result else {
             XCTFail()
@@ -30,8 +30,8 @@ final class NamedParamCheckerTests: XCTestCase {
             "-b": Int.self
             ])
 
-        let context = try! ASTContext(from: ["-str=a", "-b"], root: _CommandNode(name: ""))
-        let result = checker.check(context: context)
+        let context = try! ASTContext(args: ["-str=a", "-b"], root: _CommandNode(name: ""))
+        let result = checker.checkContext(context)
 
         guard case .failure(.inconsistant(let name, let expecting, let found)) = result else {
             XCTFail()

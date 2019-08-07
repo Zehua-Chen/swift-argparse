@@ -27,7 +27,7 @@ internal struct _Lexer {
     /// Create a new lexer using a specified source
     ///
     /// - Parameter source: the source to provide data to the lexer
-    internal init(using source: _Source) {
+    internal init(source: _Source) {
         _source = source
         _item = _source.next()
     }

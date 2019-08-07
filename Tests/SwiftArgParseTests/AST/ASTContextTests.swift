@@ -10,7 +10,7 @@ import XCTest
 
 final class ASTContextTests: XCTestCase {
     func testNamedParams() {
-        let context = try! ASTContext(from: [
+        let context = try! ASTContext(args: [
             "-a=true",
             "--c",
             "false",
@@ -30,7 +30,7 @@ final class ASTContextTests: XCTestCase {
     }
 
     func testTrailingBooleanNamedParam() {
-        let context = try! ASTContext(from: [
+        let context = try! ASTContext(args: [
             "-a=true",
             "-b",
         ], root: _CommandNode(name: ""))
@@ -41,10 +41,10 @@ final class ASTContextTests: XCTestCase {
 
     func testSubcommands() {
         let subcommand1 = _CommandNode(name: "subcommand_1")
-        let subcommand2 = subcommand1.add(subcommand: "subcommand_2")
-        let _ = subcommand2.add(subcommand: "subcommand_3")
+        let subcommand2 = subcommand1.addSubcommand("subcommand_2")
+        let _ = subcommand2.addSubcommand("subcommand_3")
 
-        let context = try! ASTContext(from: [
+        let context = try! ASTContext(args: [
             "subcommand_1",
             "subcommand_2",
             "subcommand_3",

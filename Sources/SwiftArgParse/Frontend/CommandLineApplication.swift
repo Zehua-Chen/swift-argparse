@@ -36,18 +36,18 @@ public struct CommandLineApplication {
     }
 
     @discardableResult
-    public mutating func add(path: [String]) throws -> Path {
-        let terminal = try _complete(path: path)
+    public mutating func addPath(_ path: [String]) throws -> Path {
+        let terminal = try _completePath(path)
 
         return Path(node: terminal)
     }
 
     @discardableResult
-    public mutating func add(
-        path: [String],
+    public mutating func addPath(
+        _ path: [String],
         executor: @escaping ClosureExecutor.Closure
     ) throws -> Path {
-        var command = try! self.add(path: path)
+        var command = try! self.addPath(path)
         command.executor = ClosureExecutor(executor: executor)
 
         return command
@@ -57,14 +57,14 @@ public struct CommandLineApplication {
         var rawArgs = args
         rawArgs[0] = _lastComponent(rawArgs[0])
 
-        let context = try ASTContext(from: rawArgs, root: _rootCommandNode)
+        let context = try ASTContext(args: rawArgs, root: _rootCommandNode)
         
         return context
     }
 
     public func run(with args: [String] = CommandLine.arguments) throws {
         var context = try parseContext(with: args)
-        let subroot = try _trace(path: context.subcommands)
+        let subroot = try _tracePath(context.subcommands)
 
         guard let terminal = subroot as? _ExecutableCommandNode else {
             throw SubcommandError.pathNotExecutable(context.subcommands)
@@ -85,7 +85,7 @@ public struct CommandLineApplication {
         }
     }
 
-    fileprivate mutating func _complete(path: [String]) throws -> _ExecutableCommandNode {
+    fileprivate mutating func _completePath(_ path: [String]) throws -> _ExecutableCommandNode {
         var subroot = _rootCommandNode
         var parent: _CommandNode? = nil
 
@@ -100,10 +100,10 @@ public struct CommandLineApplication {
         for p in path[1...] {
             parent = subroot
 
-            if subroot.contains(subcommand: p) {
+            if subroot.containsSubcommand(p) {
                 subroot = subroot.children[p]!
             } else {
-                subroot = subroot.add(subcommand: p)
+                subroot = subroot.addSubcommand(p)
             }
         }
 
@@ -117,7 +117,7 @@ public struct CommandLineApplication {
         return terminal
     }
 
-    fileprivate func _trace(path: [String]) throws -> _CommandNode {
+    fileprivate func _tracePath(_ path: [String]) throws -> _CommandNode {
         var subroot = _rootCommandNode
 
         guard !path.isEmpty else {
@@ -129,7 +129,7 @@ public struct CommandLineApplication {
         }
 
         for p in path[1...] {
-            if subroot.contains(subcommand: p) {
+            if subroot.containsSubcommand(p) {
                 subroot = subroot.children[p]!
             } else {
                 throw SubcommandError.pathNotFound(path)

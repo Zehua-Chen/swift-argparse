@@ -15,14 +15,14 @@ internal class _CommandNode {
         self.children = children
     }
 
-    internal func add(subcommand: String) -> _CommandNode {
+    internal func addSubcommand(_ subcommand: String) -> _CommandNode {
         let node = _CommandNode(name: subcommand)
         self.children[subcommand] = node
 
         return node
     }
 
-    internal func contains(subcommand: String) -> Bool {
+    internal func containsSubcommand(_ subcommand: String) -> Bool {
         return self.children[subcommand] != nil
     }
 }

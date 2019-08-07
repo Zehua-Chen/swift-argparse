@@ -13,9 +13,9 @@ final class CommandLineApplicationTests: XCTestCase {
         var app = CommandLineApplication(name: "tools")
         let rootNode = app._rootCommandNode
 
-        try! app.add(path: ["tools", "test"]) { _ in }
-        try! app.add(path: ["tools", "package", "generate"]) { _ in }
-        try! app.add(path: ["tools", "package"]) { _ in }
+        try! app.addPath(["tools", "test"]) { _ in }
+        try! app.addPath(["tools", "package", "generate"]) { _ in }
+        try! app.addPath(["tools", "package"]) { _ in }
 
         // Test names
         XCTAssertEqual(rootNode.name, "tools")
@@ -33,21 +33,21 @@ final class CommandLineApplicationTests: XCTestCase {
         var app = CommandLineApplication(name: "tools")
         var counter = 0
 
-        try! app.add(path: ["tools", "sub1"]) { (context) in
+        try! app.addPath(["tools", "sub1"]) { (context) in
             counter += context.namedParams["-data"] as! Int
         }
 
-        let toolsPath = try! app.add(path: ["tools"]) { (context) in
+        let tools = try! app.addPath(["tools"]) { (context) in
             counter += context.namedParams["--data"] as! Int
         }
 
-        toolsPath.add(namedParam: "--data", defaultValue: -100)
+        tools.registerNamedParam("--data", defaultValue: -100)
 
-        let sub2Path = try! app.add(path: ["tools", "sub2"]) { (context) in
+        let sub2 = try! app.addPath(["tools", "sub2"]) { (context) in
             counter += context.namedParams["--data"] as! Int
         }
 
-        sub2Path.add(namedParam: "--data", defaultValue: 100)
+        sub2.registerNamedParam("--data", defaultValue: 100)
 
         try! app.run(with: ["tools", "sub1", "-data=1"])
         try! app.run(with: ["tools", "--data=10"])
@@ -59,9 +59,9 @@ final class CommandLineApplicationTests: XCTestCase {
     func testPostProcessingStage() {
         var app = CommandLineApplication(name: "tools")
 
-        let path = try! app.add(path: ["tools", "test"])
-        path.add(namedParam: "--str", type: String.self)
-        path.add(namedParam: "--bool", type: String.self)
+        let path = try! app.addPath(["tools", "test"])
+        path.registerNamedParam("--str", type: String.self)
+        path.registerNamedParam("--bool", type: String.self)
 
         var hasError = false
 

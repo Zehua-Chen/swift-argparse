@@ -11,7 +11,7 @@ import XCTest
 final class SourceTests: XCTestCase {
 
     func enumerate(_ blocks: ArraySlice<String>) -> [_Source.Item] {
-        var source = _Source(using: blocks)
+        var source = _Source(input: blocks)
         var output = [_Source.Item]()
 
         while let letter = source.next() {

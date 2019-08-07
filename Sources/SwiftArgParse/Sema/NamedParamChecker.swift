@@ -39,7 +39,7 @@ public struct NamedParamChecker {
     /// - Parameter context: the context to check
     /// - Returns: .success(()) if no type errors, otherwise, return
     /// .failure(NamedParamCheckerError)
-    public func check(context: ASTContext) -> Result<(), NamedParamCheckerError> {
+    public func check(against context: ASTContext) -> Result<(), NamedParamCheckerError> {
 
         for item in self.paramInfo {
             guard let namedParam = context.namedParams[item.key] else {
