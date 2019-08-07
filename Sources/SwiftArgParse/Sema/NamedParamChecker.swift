@@ -12,9 +12,9 @@ public enum NamedParamCheckerError: Error, CustomStringConvertible {
     public var description: String {
         switch self {
         case .inconsistant(let name, let expecting, let found):
-            return ""
+            return "for param \(name), expecting \(expecting) but found \(found)"
         case .notFound(let name):
-            return ""
+            return "param \(name) not found"
         }
     }
 }

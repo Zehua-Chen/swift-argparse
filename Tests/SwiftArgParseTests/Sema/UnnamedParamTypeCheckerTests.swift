@@ -9,18 +9,43 @@ import XCTest
 @testable import SwiftArgParse
 
 final class UnnamedParamTypeCheckerTests: XCTestCase {
+
+    func testEmpty() {
+        let context = ASTContext(
+            subcommands: [],
+            unnamedParams: [],
+            namedParams: [:])
+
+        let checker = UnnamedParamTypeChecker(paramInfo: [
+            .single(type: Int.self),
+            .single(type: Int.self)
+        ])
+
+        guard case .failure(let error) = checker.check(context: context) else {
+            XCTFail()
+            return
+        }
+
+        guard case .overflow(let index) = error else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(index, 0)
+    }
+
     func testSingleRecurringSuccess() {
         let context = ASTContext(
             subcommands: [""],
             unnamedParams: ["a", "b", "c"],
             namedParams: [:])
 
-        let checker = UnnamedParamTypeChecker(typeInfo: [
-            .recurrsing(type: String.self)
+        let checker = UnnamedParamTypeChecker(paramInfo: [
+            .recurring(type: String.self)
         ])
 
-        if case .failure(_) = checker.check(context: context) {
-            XCTFail()
+        if case .failure(let error) = checker.check(context: context) {
+            XCTFail(String(describing: error))
         }
     }
 
@@ -30,8 +55,8 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             unnamedParams: ["a", "b", 12],
             namedParams: [:])
 
-        let checker = UnnamedParamTypeChecker(typeInfo: [
-            .recurrsing(type: String.self)
+        let checker = UnnamedParamTypeChecker(paramInfo: [
+            .recurring(type: String.self)
         ])
 
         guard case .failure(let error) = checker.check(context: context) else {
@@ -40,7 +65,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
         }
 
         guard case .inconsistant(let index, let expected, let found) = error else {
-            XCTFail()
+            XCTFail(String(describing: error))
             return
         }
 
@@ -55,7 +80,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             unnamedParams: [12, 12, 12],
             namedParams: [:])
 
-        let checker = UnnamedParamTypeChecker(typeInfo: [
+        let checker = UnnamedParamTypeChecker(paramInfo: [
             .single(type: Int.self),
             .single(type: Int.self),
         ])
@@ -79,9 +104,9 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             unnamedParams: ["a", "b", 12, 22],
             namedParams: [:])
 
-        let checker = UnnamedParamTypeChecker(typeInfo: [
-            .recurrsing(type: String.self),
-            .recurrsing(type: Int.self)
+        let checker = UnnamedParamTypeChecker(paramInfo: [
+            .recurring(type: String.self),
+            .recurring(type: Int.self)
         ])
 
         if case .failure(_) = checker.check(context: context) {
@@ -95,10 +120,10 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             unnamedParams: ["a", "b", 12, 12.0, 12.0],
             namedParams: [:])
 
-        let checker = UnnamedParamTypeChecker(typeInfo: [
-            .recurrsing(type: String.self),
+        let checker = UnnamedParamTypeChecker(paramInfo: [
+            .recurring(type: String.self),
             .single(type: Int.self),
-            .recurrsing(type: Double.self)
+            .recurring(type: Double.self)
         ])
 
         guard case .success = checker.check(context: context) else {
@@ -113,10 +138,10 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             unnamedParams: ["a", "b", 12, 12.0, 12.0],
             namedParams: [:])
 
-        let checker = UnnamedParamTypeChecker(typeInfo: [
+        let checker = UnnamedParamTypeChecker(paramInfo: [
             .single(type: Int.self),
             .single(type: Int.self),
-            .recurrsing(type: Double.self)
+            .recurring(type: Double.self)
         ])
 
         guard case .failure(let error) = checker.check(context: context) else {

@@ -5,6 +5,7 @@
 //  Created by Zehua Chen on 7/18/19.
 //
 
+@usableFromInline
 internal class _CommandNode {
     internal var name: String
     internal var children: [String:_CommandNode]

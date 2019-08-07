@@ -8,10 +8,21 @@
 public typealias SemanticStage = (_ context: ASTContext) -> Result<(), Error>
 
 public struct Path {
-    fileprivate var _node: _ExecutableCommandNode
+    @usableFromInline
+    internal var _node: _ExecutableCommandNode
 
     public var defaultNamedParams: [String: Any] {
         get { return _node.defaultNamedParams }
+    }
+
+    public var checksNamedParams: Bool {
+        get { return _node.checksNamedParams }
+        set { _node.checksNamedParams = newValue }
+    }
+
+    public var checksUnnamedParams: Bool {
+        get { return _node.checksUnnamedParams }
+        set { _node.checksUnnamedParams = newValue }
     }
 
     public var executor: Executor? {
@@ -23,6 +34,7 @@ public struct Path {
         _node = node
     }
 
+    @inlinable
     public func add<Param>(
         namedParam name: String,
         type: Param.Type
@@ -30,8 +42,22 @@ public struct Path {
         _node.namedParamChecker.paramInfo[name] = type
     }
 
+    @inlinable
     public func add<Param>(namedParam name: String, defaultValue: Param) {
         _node.namedParamChecker.paramInfo[name] = Param.self
         _node.defaultNamedParams[name] = defaultValue
+    }
+
+    @inlinable
+    public func add<Param>(unnamedParam: Param.Type, isRecurring: Bool = false) {
+        if isRecurring {
+            _node.unnamedParamChecker.paramInfo.append(.recurring(type: unnamedParam))
+        } else {
+            _node.unnamedParamChecker.paramInfo.append(.single(type: unnamedParam))
+        }
+    }
+
+    public func add(customSemanticStage: @escaping SemanticStage) {
+        _node.customSemanticStage.append(customSemanticStage)
     }
 }
