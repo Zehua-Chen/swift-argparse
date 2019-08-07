@@ -14,15 +14,15 @@ app-name command param -options...
 string
 ````
 
-### Required Parameters
+### Unnamed Parameters
 
 ````
 string|boolean
 (dash) uint|udecimal
 ````
-- Other required param types are treated as params
+- Other unnamed param types are treated as params
 
-### Optional Parameters
+### Named Parameters
 
 ````
 dash(s) string assignment/endBlock string|bolean
@@ -32,12 +32,12 @@ dash(s) string assignment/endBlock string|bolean
 dash(s) string assignment/endBlock (dash) uint|udecimal
 ````
 
-- The first string, **combined with the dashes** is the `name` of an optional param;
+- The first string, **combined with the dashes** is the `name` of an named param;
 - Whatever comes after the `assignment` or `endBlock` is the `value`;
 
-An implicit `true` optional param is produced when
+An implicit `true` named param is produced when
 
-- When the block is followed by what can be the start of a new optional param (dashes and 
+- When the block is followed by what can be the start of a new named param (dashes and 
 string);
 - When the block is the last one in the array
 

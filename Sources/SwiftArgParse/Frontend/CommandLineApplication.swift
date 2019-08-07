@@ -54,23 +54,23 @@ public struct CommandLineApplication {
     }
 
     public func parseContext(with args: [String] = CommandLine.arguments) throws -> ASTContext {
-        let context = try ASTContext(from: args, root: _rootCommandNode)
+        var rawArgs = args
+        rawArgs[0] = _lastComponent(rawArgs[0])
+
+        let context = try ASTContext(from: rawArgs, root: _rootCommandNode)
         
         return context
     }
 
     public func run(with args: [String] = CommandLine.arguments) throws {
-        var rawArgs = args
-        rawArgs[0] = _lastComponent(rawArgs[0])
-
-        var context = try ASTContext(from: rawArgs, root: _rootCommandNode)
+        var context = try parseContext(with: args)
         let subroot = try _trace(path: context.subcommands)
 
         guard let terminal = subroot as? _ExecutableCommandNode else {
             throw SubcommandError.pathNotExecutable(context.subcommands)
         }
 
-        context.optionalParams.merge(terminal.defaultOptionalParams, uniquingKeysWith: {
+        context.namedParams.merge(terminal.defaultNamedParams, uniquingKeysWith: {
             (a, b) in return a
         })
 

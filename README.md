@@ -18,8 +18,8 @@ try! app.add(path: ["example"]) { (context) in
 }
 
 try! app.add(path: ["example", "print"]) { (context) in
-    print("required: \(context.requiredParams))")
-    print("optional: \(context.optionalParams))")
+    print("unnamed: \(context.unnamedParams))")
+    print("named: \(context.namedParams))")
 }
 
 try! app.run()

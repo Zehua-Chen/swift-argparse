@@ -8,18 +8,18 @@
 internal class _ExecutableCommandNode: _CommandNode {
     internal var executor: Executor?
 
-    // MARK: Optional param related properties
+    // MARK: Named param related properties
 
-    internal var defaultOptionalParams = [String: Any]()
-    internal var optionalParamTypeChecker = OptionalParamChecker()
-    internal var checksOptionalParam = true
+    internal var defaultNamedParams = [String: Any]()
+    internal var namedParamChecker = NamedParamChecker()
+    internal var checkNamedParam = true
 
     internal var semanticStages: [SemanticStage] {
         var stages = [SemanticStage]()
 
-        if self.checksOptionalParam {
+        if self.checkNamedParam {
             stages.append({
-                return self.optionalParamTypeChecker.check(context: $0).mapError {
+                return self.namedParamChecker.check(context: $0).mapError {
                     return $0 as Error
                 }
             })

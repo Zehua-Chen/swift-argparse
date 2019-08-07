@@ -1,5 +1,5 @@
 //
-//  RequiredParamTypeCheckerTests.swift
+//  UnnamedParamTypeCheckerTests.swift
 //  SwiftArgParse
 //
 //  Created by Zehua Chen on 7/28/19.
@@ -8,14 +8,14 @@
 import XCTest
 @testable import SwiftArgParse
 
-final class RequiredParamTypeCheckerTests: XCTestCase {
+final class UnnamedParamTypeCheckerTests: XCTestCase {
     func testSingleRecurringSuccess() {
         let context = ASTContext(
             subcommands: [""],
-            requiredParams: ["a", "b", "c"],
-            optionalParams: [:])
+            unnamedParams: ["a", "b", "c"],
+            namedParams: [:])
 
-        let checker = RequiredParamTypeChecker(typeInfo: [
+        let checker = UnnamedParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self)
         ])
 
@@ -27,10 +27,10 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
     func testSingleRecurringFailure() {
         let context = ASTContext(
             subcommands: [""],
-            requiredParams: ["a", "b", 12],
-            optionalParams: [:])
+            unnamedParams: ["a", "b", 12],
+            namedParams: [:])
 
-        let checker = RequiredParamTypeChecker(typeInfo: [
+        let checker = UnnamedParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self)
         ])
 
@@ -52,10 +52,10 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
     func testUnderflow() {
         let context = ASTContext(
             subcommands: [""],
-            requiredParams: [12, 12, 12],
-            optionalParams: [:])
+            unnamedParams: [12, 12, 12],
+            namedParams: [:])
 
-        let checker = RequiredParamTypeChecker(typeInfo: [
+        let checker = UnnamedParamTypeChecker(typeInfo: [
             .single(type: Int.self),
             .single(type: Int.self),
         ])
@@ -76,10 +76,10 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
     func testMultipleRecurrsingSuccess() {
         let context = ASTContext(
             subcommands: [""],
-            requiredParams: ["a", "b", 12, 22],
-            optionalParams: [:])
+            unnamedParams: ["a", "b", 12, 22],
+            namedParams: [:])
 
-        let checker = RequiredParamTypeChecker(typeInfo: [
+        let checker = UnnamedParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self),
             .recurrsing(type: Int.self)
         ])
@@ -92,10 +92,10 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
     func testCombinedSuccess() {
         let context = ASTContext(
             subcommands: [""],
-            requiredParams: ["a", "b", 12, 12.0, 12.0],
-            optionalParams: [:])
+            unnamedParams: ["a", "b", 12, 12.0, 12.0],
+            namedParams: [:])
 
-        let checker = RequiredParamTypeChecker(typeInfo: [
+        let checker = UnnamedParamTypeChecker(typeInfo: [
             .recurrsing(type: String.self),
             .single(type: Int.self),
             .recurrsing(type: Double.self)
@@ -110,10 +110,10 @@ final class RequiredParamTypeCheckerTests: XCTestCase {
     func testCombinedFailure() {
         let context = ASTContext(
             subcommands: [""],
-            requiredParams: ["a", "b", 12, 12.0, 12.0],
-            optionalParams: [:])
+            unnamedParams: ["a", "b", 12, 12.0, 12.0],
+            namedParams: [:])
 
-        let checker = RequiredParamTypeChecker(typeInfo: [
+        let checker = UnnamedParamTypeChecker(typeInfo: [
             .single(type: Int.self),
             .single(type: Int.self),
             .recurrsing(type: Double.self)

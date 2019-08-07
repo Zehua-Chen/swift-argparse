@@ -6,13 +6,13 @@ app-name subcommands... parameters...
 
 The command line arguments are defined to have three parts
 1. Subcommands (including the main app command)
-2. Unabled required parameters
-3. Named optional parameters
+2. Unamed parameters
+3. Named parameters
 
 ## Parts
 
 - **Subcommands** must come first;
-- **Required** and **optional** params must come after **subcommands** but do not 
+- **Unnamed** and **named** params must come after **subcommands** but do not 
 have to be ordered;
-- Even though **required** params can be mixed with optional params, **required** params 
+- Even though **unamed** params can be mixed with named params, **unamed** params 
 are stored with orders;
