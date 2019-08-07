@@ -22,7 +22,7 @@ internal struct _Parser {
     ///
     /// - Parameter args: the command line args to use
     internal init(args: [String], rootCommand: _CommandNode) {
-        _lexer = _Lexer(using: _Source(using: args[0...]))
+        _lexer = _Lexer(source: _Source(input: args[0...]))
         _commandNode = rootCommand
     }
 
@@ -41,18 +41,18 @@ internal struct _Parser {
             
             switch peek {
             case .dash:
-                try _dashStart(context: &context)
+                try _dashStart(into: &context)
             case .string(_):
-                try _string(context: &context)
+                try _string(into: &context)
             case .udecimal(_), .uint(_), .boolean(_):
-                try _unsignedNonStringRequiredParam(context: &context)
+                try _unsignedNonStringUnnamedParam(into: &context)
             default:
                 throw ParserError.unexpected(token: peek)
             }
         }
     }
 
-    fileprivate mutating func _dashStart(context: inout ASTContext) throws {
+    fileprivate mutating func _dashStart(into context: inout ASTContext) throws {
         guard let token = try _lexer.next() else {
             throw ParserError.unexepctedEnd
         }
@@ -64,11 +64,11 @@ internal struct _Parser {
             if let peek = try _lexer.peek() {
                 switch peek {
                 case .dash, .string(_):
-                    return try _optionalParam(context: &context)
+                    return try _namedParam(into: &context)
                 case .udecimal(let ud):
-                    context.requiredParams.append(Double(ud) * -1.0)
+                    context.unnamedParams.append(Double(ud) * -1.0)
                 case .uint(let ui):
-                    context.requiredParams.append(Int(ui) * -1)
+                    context.unnamedParams.append(Int(ui) * -1)
                 default:
                     throw ParserError.unexpected(token: token)
                 }
@@ -78,7 +78,7 @@ internal struct _Parser {
         }
     }
 
-    fileprivate mutating func _optionalParam(context: inout ASTContext) throws {
+    fileprivate mutating func _namedParam(into context: inout ASTContext) throws {
         var token = try _lexer.next()
         // Gather dashes
         while token != nil && .dash == token! {
@@ -103,11 +103,11 @@ internal struct _Parser {
             // If there are at least two more tokens ahead, the following
             // syntax rules apply:
             // - if peek_1 is dash and peek_2 is string or dash, then insert
-            //   a true optional param using the existing name
+            //   a true named param using the existing name
             // - Otherwise, the upcoming block is considered to be a value
-            //   to be inserted as an optional param using the current name
+            //   to be inserted as an named param using the current name
             // If there are no sufficient tokens ahead, then insert a "true"
-            // optional param using the existing name
+            // named param using the existing name
             var shouldInsertBool = false
 
             if let peekA = try _lexer.peek(), let peekB = try _lexer.peek(offset: 1) {
@@ -125,10 +125,10 @@ internal struct _Parser {
             }
 
             if shouldInsertBool {
-                context.optionalParams[_buffer] = true
+                context.namedParams[_buffer] = true
                 return
             } else {
-                // Since if up coming value serves as a value in an optional
+                // Since if up coming value serves as a value in a named
                 // param, the current token functions as a assignment
                 // token. Therefore, the same action has to be performed as
                 // if it is an assignment token.
@@ -144,13 +144,13 @@ internal struct _Parser {
 
         switch token! {
         case .string(let str):
-            context.optionalParams[_buffer] = str
+            context.namedParams[_buffer] = str
         case .uint(let ui):
-            context.optionalParams[_buffer] = Int(ui)
+            context.namedParams[_buffer] = Int(ui)
         case .udecimal(let ud):
-            context.optionalParams[_buffer] = Double(ud)
+            context.namedParams[_buffer] = Double(ud)
         case .boolean(let b):
-            context.optionalParams[_buffer] = b
+            context.namedParams[_buffer] = b
         case .dash:
             token = try _lexer.next()
 
@@ -158,11 +158,11 @@ internal struct _Parser {
 
             switch token! {
             case .udecimal(let ud):
-                context.optionalParams[_buffer] = Double(ud) * -1.0
+                context.namedParams[_buffer] = Double(ud) * -1.0
             case .uint(let ui):
-                context.optionalParams[_buffer] = Int(ui) * -1
+                context.namedParams[_buffer] = Int(ui) * -1
             default:
-                throw ParserError.expecting(variantOf: [Token.udecimal(0), Token.uint(0)])
+                throw ParserError.unexpected(token: token!)
             }
         default:
             throw ParserError.unexpected(token: token!)
@@ -172,20 +172,22 @@ internal struct _Parser {
         token = try _lexer.next()
 
         guard token != nil else { throw ParserError.unexepctedEnd }
-        guard token! == .endBlock else { throw ParserError.expecting(token: .endBlock) }
+        guard token! == .endBlock else {
+            throw ParserError.expecting(token: .endBlock)
+        }
     }
 
-    fileprivate mutating func _unsignedNonStringRequiredParam(context: inout ASTContext) throws {
+    fileprivate mutating func _unsignedNonStringUnnamedParam(into context: inout ASTContext) throws {
         var token = try _lexer.next()
         guard token != nil else { throw ParserError.unexepctedEnd }
 
         switch token! {
         case .boolean(let b):
-            context.requiredParams.append(b)
+            context.unnamedParams.append(b)
         case .uint(let ui):
-            context.requiredParams.append(Int(ui))
+            context.unnamedParams.append(Int(ui))
         case .udecimal(let ud):
-            context.requiredParams.append(Double(ud))
+            context.unnamedParams.append(Double(ud))
         default:
             throw ParserError.unexpected(token: token!)
         }
@@ -195,10 +197,12 @@ internal struct _Parser {
         guard token! == .endBlock else { throw ParserError.unexpected(token: token! )}
     }
 
-    fileprivate mutating func _string(context: inout ASTContext) throws {
+    fileprivate mutating func _string(into context: inout ASTContext) throws {
         var token = try _lexer.next()
         guard token != nil else { throw ParserError.unexepctedEnd }
-        guard case .string(let str) = token! else { throw ParserError.expecting(token: .string(""))  }
+        guard case .string(let str) = token! else {
+            throw ParserError.expecting(token: .string(""))
+        }
 
         switch _region {
         case .subcommand:
@@ -213,15 +217,15 @@ internal struct _Parser {
                 break
             }
 
-            if _commandNode.contains(subcommand: str) {
+            if _commandNode.containsSubcommand(str) {
                 context.subcommands.append(str)
                 _commandNode = _commandNode.children[str]!
             } else {
                 _region = .params
-                context.requiredParams.append(str)
+                context.unnamedParams.append(str)
             }
         case .params:
-            context.requiredParams.append(str)
+            context.unnamedParams.append(str)
         }
 
         token = try _lexer.next()

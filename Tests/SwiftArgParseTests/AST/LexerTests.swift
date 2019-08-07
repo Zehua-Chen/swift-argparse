@@ -11,7 +11,7 @@ import XCTest
 final class LexerTests: XCTestCase {
 
     func tokenize(_ data: [String]) throws -> [Token] {
-        var lexer = _Lexer(using: _Source(using: data[0...]))
+        var lexer = _Lexer(source: _Source(input: data[0...]))
         var output = [Token]()
 
         while let token = try lexer.next() {
@@ -116,7 +116,7 @@ final class LexerTests: XCTestCase {
 
     func testPeek() {
         let input = ["-positive=true"]
-        var lexer = _Lexer(using: _Source(using: input[...]))
+        var lexer = _Lexer(source: _Source(input: input[...]))
 
         XCTAssertEqual(try! lexer.peek(), .dash)
         XCTAssertEqual(try! lexer.peek(offset: 1), .string("positive"))

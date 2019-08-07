@@ -13,9 +13,9 @@ final class CommandLineApplicationTests: XCTestCase {
         var app = CommandLineApplication(name: "tools")
         let rootNode = app._rootCommandNode
 
-        try! app.add(path: ["tools", "test"]) { _ in }
-        try! app.add(path: ["tools", "package", "generate"]) { _ in }
-        try! app.add(path: ["tools", "package"]) { _ in }
+        try! app.addPath(["tools", "test"]) { _ in }
+        try! app.addPath(["tools", "package", "generate"]) { _ in }
+        try! app.addPath(["tools", "package"]) { _ in }
 
         // Test names
         XCTAssertEqual(rootNode.name, "tools")
@@ -24,29 +24,30 @@ final class CommandLineApplicationTests: XCTestCase {
         XCTAssertEqual(rootNode.children["package"]!.children["generate"]!.name, "generate")
 
         // Test commands
-        XCTAssert(rootNode.executor == nil)
-        XCTAssert(rootNode.children["test"]?.executor != nil)
+        let testNode = rootNode.children["test"] as! _ExecutableCommandNode
+
+        XCTAssertNotNil(testNode.executor)
     }
 
-    func testRunWithoutOptionalParams() {
+    func testRunWithoutNamedParams() {
         var app = CommandLineApplication(name: "tools")
         var counter = 0
 
-        try! app.add(path: ["tools", "sub1"]) { (context) in
-            counter += context.optionalParams["-data"] as! Int
+        try! app.addPath(["tools", "sub1"]) { (context) in
+            counter += context.namedParams["-data"] as! Int
         }
 
-        var toolsPath = try! app.add(path: ["tools"]) { (context) in
-            counter += context.optionalParams["--data"] as! Int
+        let tools = try! app.addPath(["tools"]) { (context) in
+            counter += context.namedParams["--data"] as! Int
         }
 
-        toolsPath.defaultOptionalParams = ["--data": -100]
+        tools.registerNamedParam("--data", defaultValue: -100)
 
-        var sub2Path = try! app.add(path: ["tools", "sub2"]) { (context) in
-            counter += context.optionalParams["--data"] as! Int
+        let sub2 = try! app.addPath(["tools", "sub2"]) { (context) in
+            counter += context.namedParams["--data"] as! Int
         }
 
-        sub2Path.defaultOptionalParams = ["--data": 100]
+        sub2.registerNamedParam("--data", defaultValue: 100)
 
         try! app.run(with: ["tools", "sub1", "-data=1"])
         try! app.run(with: ["tools", "--data=10"])
@@ -58,17 +59,9 @@ final class CommandLineApplicationTests: XCTestCase {
     func testPostProcessingStage() {
         var app = CommandLineApplication(name: "tools")
 
-        let path = try! app.add(path: ["tools", "test"])
-        path.add(semanticStage: { (context) in
-            let checker = OptionalParamTypeChecker(typeInfo: [
-                "--str": String.self,
-                "--bool": Bool.self
-            ])
-
-            return checker.check(context: context).mapError { (err) in
-                return err as Error
-            }
-        })
+        let path = try! app.addPath(["tools", "test"])
+        path.registerNamedParam("--str", type: String.self)
+        path.registerNamedParam("--bool", type: String.self)
 
         var hasError = false
 

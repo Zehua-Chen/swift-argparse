@@ -13,7 +13,7 @@
 /// - udecimal: unsigned decimal
 /// - dash: dash `-`
 /// - assignment: assignment `=`
-public enum Token: Equatable {
+public enum Token: Equatable, CustomStringConvertible {
     case string(_ value: String)
     case boolean(_ value: Bool)
     case uint(_ value: UInt)
@@ -21,4 +21,23 @@ public enum Token: Equatable {
     case dash
     case assignment
     case endBlock
+
+    public var description: String {
+        switch self {
+        case .string(let str):
+            return "\"\(str)\""
+        case .boolean(let b):
+            return "\(b)"
+        case .uint(let ui):
+            return "\(ui)"
+        case .udecimal(let ud):
+            return "\(ud)"
+        case .dash:
+            return "'-'"
+        case .assignment:
+            return "'='"
+        case .endBlock:
+            return "end block"
+        }
+    }
 }
