@@ -41,6 +41,9 @@ final class NamedParamCheckerTests: XCTestCase {
     }
 
     func testNotPresent() {
-        
+        let checker = NamedParamChecker(typeInfo: ["-a": String.self])
+        let context = try! ASTContext(args: ["tools"], root: _CommandNode(name: "tools"))
+
+        XCTAssertNoThrow(try checker.check(against: context))
     }
 }

@@ -7,14 +7,11 @@
 
 public enum NamedParamCheckerError: Error, CustomStringConvertible {
     case inconsistant(name: String, expecting: Any.Type, found: Any.Type)
-    case notFound(name: String)
 
     public var description: String {
         switch self {
         case .inconsistant(let name, let expecting, let found):
             return "for param \(name), expecting \(expecting) but found \(found)"
-        case .notFound(let name):
-            return "param \(name) not found"
         }
     }
 }
@@ -43,7 +40,7 @@ public struct NamedParamChecker {
 
         for item in self.paramInfo {
             guard let namedParam = context.namedParams[item.key] else {
-                throw NamedParamCheckerError.notFound(name: item.key)
+                continue
             }
 
             let namedParamT = type(of: namedParam)
