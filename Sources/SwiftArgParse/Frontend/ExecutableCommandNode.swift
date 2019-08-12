@@ -45,17 +45,13 @@ internal class _ExecutableCommandNode: _CommandNode {
 
         if self.checksNamedParams {
             stages.append({
-                return self.namedParamChecker.check(against: $0).mapError {
-                    return $0 as Error
-                }
+                try self.namedParamChecker.check(against: $0)
             })
         }
 
         if self.checksUnnamedParams {
             stages.append({
-                return self.unnamedParamChecker.check(against: $0).mapError {
-                    return $0 as Error
-                }
+                try self.unnamedParamChecker.check(against: $0)
             })
         }
 

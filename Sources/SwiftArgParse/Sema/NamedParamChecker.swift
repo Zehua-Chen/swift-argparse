@@ -39,20 +39,18 @@ public struct NamedParamChecker {
     /// - Parameter context: the context to check
     /// - Returns: .success(()) if no type errors, otherwise, return
     /// .failure(NamedParamCheckerError)
-    public func check(against context: ASTContext) -> Result<(), NamedParamCheckerError> {
+    public func check(against context: ASTContext) throws {
 
         for item in self.paramInfo {
             guard let namedParam = context.namedParams[item.key] else {
-                return .failure(.notFound(name: item.key))
+                throw NamedParamCheckerError.notFound(name: item.key)
             }
 
             let namedParamT = type(of: namedParam)
 
             if namedParamT != item.value {
-                return .failure(.inconsistant(name: item.key, expecting: item.value, found: namedParamT))
+                throw NamedParamCheckerError.inconsistant(name: item.key, expecting: item.value, found: namedParamT)
             }
         }
-
-        return .success(())
     }
 }

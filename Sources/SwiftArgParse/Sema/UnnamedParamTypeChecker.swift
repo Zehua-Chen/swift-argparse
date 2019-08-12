@@ -34,7 +34,7 @@ public struct UnnamedParamTypeChecker {
     /// - Parameter context: the context to check
     /// - Returns: .success(()) if no type errors, otherwise, return
     /// .failure(UnnamedParamTypeCheckerError)
-    public func check(against context: ASTContext) -> Result<(), UnnamedParamTypeCheckerError> {
+    public func check(against context: ASTContext) throws {
         var unnamedParamIter = context.unnamedParams.makeIterator()
         var unnamedParamIndex = 0
         var paramInfoIter = self.paramInfo.makeIterator()
@@ -44,10 +44,10 @@ public struct UnnamedParamTypeChecker {
 
             guard let unnamedParam = unnamedParamIter.next() else {
                 if case .recurring(_) = paramInfo! {
-                    return .success(())
+                    return
                 }
                 
-                return .failure(.overflow(index: unnamedParamIndex))
+                throw UnnamedParamTypeCheckerError.overflow(index: unnamedParamIndex)
             }
 
             let unnamedParamT = type(of: unnamedParam)
@@ -55,10 +55,10 @@ public struct UnnamedParamTypeChecker {
             switch paramInfo! {
             case .single(let type):
                 if type != unnamedParamT {
-                    return .failure(.inconsistant(
+                    throw UnnamedParamTypeCheckerError.inconsistant(
                         index: unnamedParamIndex,
                         expecting: type,
-                        found: unnamedParamT))
+                        found: unnamedParamT)
                 }
 
                 paramInfo = paramInfoIter.next()
@@ -67,28 +67,28 @@ public struct UnnamedParamTypeChecker {
                     paramInfo = paramInfoIter.next()
 
                     guard paramInfo != nil else {
-                        return .failure(.inconsistant(
+                        throw UnnamedParamTypeCheckerError.inconsistant(
                             index: unnamedParamIndex,
                             expecting: type,
-                            found: unnamedParamT))
+                            found: unnamedParamT)
                     }
 
                     switch paramInfo! {
                     case .single(let nextType):
                         if nextType != unnamedParamT {
-                            return .failure(.inconsistant(
+                            throw UnnamedParamTypeCheckerError.inconsistant(
                                 index: unnamedParamIndex,
-                                expecting: nextType,
-                                found: unnamedParamT))
+                                expecting: type,
+                                found: unnamedParamT)
                         }
 
                         paramInfo = paramInfoIter.next()
                     case .recurring(let nextType):
                         if nextType != unnamedParamT {
-                            return .failure(.inconsistant(
+                            throw UnnamedParamTypeCheckerError.inconsistant(
                                 index: unnamedParamIndex,
                                 expecting: nextType,
-                                found: unnamedParamT))
+                                found: unnamedParamT)
                         }
                     }
                 }
@@ -98,9 +98,7 @@ public struct UnnamedParamTypeChecker {
         }
 
         if let _ = unnamedParamIter.next() {
-            return .failure(.overflow(index: unnamedParamIndex))
+            throw UnnamedParamTypeCheckerError.overflow(index: unnamedParamIndex)
         }
-        
-        return .success(())
     }
 }
