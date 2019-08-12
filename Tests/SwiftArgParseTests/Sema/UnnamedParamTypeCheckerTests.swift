@@ -21,17 +21,14 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .single(type: Int.self)
         ])
 
-        guard case .failure(let error) = checker.check(against: context) else {
-            XCTFail()
-            return
-        }
+        XCTAssertThrowsError(try checker.check(against: context), "", { (error) in
+            guard case UnnamedParamTypeCheckerError.overflow(let index) = error else {
+                XCTFail()
+                return
+            }
 
-        guard case .overflow(let index) = error else {
-            XCTFail()
-            return
-        }
-
-        XCTAssertEqual(index, 0)
+            XCTAssertEqual(index, 0)
+        })
     }
 
     func testNonRecurringSuccess() {
@@ -46,9 +43,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .single(type: String.self)
         ])
 
-        if case .failure(let error) = checker.check(against: context) {
-            XCTFail(String(describing: error))
-        }
+        XCTAssertNoThrow(try checker.check(against: context))
     }
 
     func testSingleRecurringSuccess() {
@@ -61,9 +56,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: String.self)
         ])
 
-        if case .failure(let error) = checker.check(against: context) {
-            XCTFail(String(describing: error))
-        }
+        XCTAssertNoThrow(try checker.check(against: context))
     }
 
     func testSingleRecurringFailure() {
@@ -76,19 +69,16 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: String.self)
         ])
 
-        guard case .failure(let error) = checker.check(against: context) else {
-            XCTFail()
-            return
-        }
+        XCTAssertThrowsError(try checker.check(against: context), "", { (error) in
+            guard case UnnamedParamTypeCheckerError.inconsistant(let index, let expected, let found) = error else {
+                XCTFail(String(describing: error))
+                return
+            }
 
-        guard case .inconsistant(let index, let expected, let found) = error else {
-            XCTFail(String(describing: error))
-            return
-        }
-
-        XCTAssertEqual(index, 2)
-        XCTAssert(expected == String.self)
-        XCTAssert(found == Int.self)
+            XCTAssertEqual(index, 2)
+            XCTAssert(expected == String.self)
+            XCTAssert(found == Int.self)
+        })
     }
 
     func testUnderflow() {
@@ -102,17 +92,15 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .single(type: Int.self),
         ])
 
-        guard case .failure(let error) = checker.check(against: context) else {
-            XCTFail()
-            return
-        }
+        XCTAssertThrowsError(try checker.check(against: context), "", { (error) in
+            guard case UnnamedParamTypeCheckerError.overflow(let index) = error else {
+                XCTFail()
+                return
+            }
 
-        guard case .overflow(let index) = error else {
-            XCTFail()
-            return
-        }
+            XCTAssertEqual(index, 2)
+        })
 
-        XCTAssertEqual(index, 2)
     }
 
     func testMultipleRecurrsingSuccess() {
@@ -126,9 +114,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: Int.self)
         ])
 
-        if case .failure(_) = checker.check(against: context) {
-            XCTFail()
-        }
+        XCTAssertNoThrow(try checker.check(against: context))
     }
 
     func testCombinedSuccess() {
@@ -143,10 +129,7 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: Double.self)
         ])
 
-        guard case .success = checker.check(against: context) else {
-            XCTFail()
-            return
-        }
+        XCTAssertNoThrow(try checker.check(against: context))
     }
 
     func testCombinedFailure() {
@@ -161,19 +144,16 @@ final class UnnamedParamTypeCheckerTests: XCTestCase {
             .recurring(type: Double.self)
         ])
 
-        guard case .failure(let error) = checker.check(against: context) else {
-            XCTFail()
-            return
-        }
+        XCTAssertThrowsError(try checker.check(against: context), "", { (error) in
+            guard case UnnamedParamTypeCheckerError.inconsistant(let index, let expected, let found) = error else {
+                XCTFail()
+                return
+            }
 
-        guard case .inconsistant(let index, let expected, let found) = error else {
-            XCTFail()
-            return
-        }
-
-        XCTAssertEqual(index, 0)
-        XCTAssert(expected == Int.self)
-        XCTAssert(found == String.self)
+            XCTAssertEqual(index, 0)
+            XCTAssert(expected == Int.self)
+            XCTAssert(found == String.self)
+        })
     }
 
 }

@@ -5,7 +5,7 @@
 //  Created by Zehua Chen on 7/30/19.
 //
 
-public typealias SemanticStage = (_ context: ASTContext) -> Result<(), Error>
+public typealias SemanticStage = (_ context: ASTContext) throws -> Void
 
 /// A path in the command line application
 public struct Path {

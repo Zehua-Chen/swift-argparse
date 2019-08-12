@@ -104,9 +104,7 @@ public struct CommandLineApplication {
         })
 
         for stage in terminal.semanticStages {
-            if case .failure(let err) = stage(context) {
-                throw err
-            }
+            try stage(context)
         }
 
         if terminal.executor != nil {

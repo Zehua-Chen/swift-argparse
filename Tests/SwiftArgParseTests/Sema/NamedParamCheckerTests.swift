@@ -16,12 +16,7 @@ final class NamedParamCheckerTests: XCTestCase {
         ])
 
         let context = try! ASTContext(args: ["-str=a", "-b"], root: _CommandNode(name: ""))
-        let result = checker.check(against: context)
-
-        guard case .success(()) = result else {
-            XCTFail()
-            return
-        }
+        XCTAssertNoThrow(try checker.check(against: context))
     }
 
     func testTypeCheckingFail() {
@@ -31,15 +26,24 @@ final class NamedParamCheckerTests: XCTestCase {
             ])
 
         let context = try! ASTContext(args: ["-str=a", "-b"], root: _CommandNode(name: ""))
-        let result = checker.check(against: context)
+        XCTAssertThrowsError(try checker.check(against: context), "", { (error) in
+            guard case NamedParamCheckerError.inconsistant(let name, let expecting, let found) = error else {
+                XCTFail()
+                return
+            }
 
-        guard case .failure(.inconsistant(let name, let expecting, let found)) = result else {
-            XCTFail()
-            return
-        }
+            XCTAssertEqual(name, "-b")
+            XCTAssert(expecting == Int.self)
+            XCTAssert(found == Bool.self)
+        })
 
-        XCTAssertEqual(name, "-b")
-        XCTAssert(expecting == Int.self)
-        XCTAssert(found == Bool.self)
+
+    }
+
+    func testNotPresent() {
+        let checker = NamedParamChecker(typeInfo: ["-a": String.self])
+        let context = try! ASTContext(args: ["tools"], root: _CommandNode(name: "tools"))
+
+        XCTAssertNoThrow(try checker.check(against: context))
     }
 }
