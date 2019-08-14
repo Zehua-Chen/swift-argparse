@@ -49,10 +49,8 @@ public struct CommandLineApplication {
     /// - Returns: a handle to the added path
     /// - Throws: SubcommandError
     @discardableResult
-    public mutating func addPath(_ path: [String]) throws -> Path {
-        let terminal = try _completePath(path)
-
-        return Path(node: terminal)
+    public mutating func addPath(_ path: [String]) -> Path {
+        return Path(node: _completePath(path))
     }
 
     /// Add a path
@@ -65,9 +63,9 @@ public struct CommandLineApplication {
     @discardableResult
     public mutating func addPath(
         _ path: [String],
-        executor: @escaping ClosureExecutor.Closure
-    ) throws -> Path {
-        var command = try! self.addPath(path)
+        with executor: @escaping ClosureExecutor.Closure
+    ) -> Path {
+        var command = self.addPath(path)
         command.executor = ClosureExecutor(executor: executor)
 
         return command
@@ -117,16 +115,16 @@ public struct CommandLineApplication {
     /// - Parameter path: the path
     /// - Returns: the executable command node inserted during completion
     /// - Throws: SubcommandError
-    fileprivate mutating func _completePath(_ path: [String]) throws -> _ExecutableCommandNode {
+    fileprivate mutating func _completePath(_ path: [String]) -> _ExecutableCommandNode {
         var subroot = _rootCommandNode
         var parent: _CommandNode? = nil
 
         guard !path.isEmpty else {
-            throw SubcommandError.pathEmpty
+            fatalError("Path cannot be empty")
         }
 
         guard _rootCommandNode.name == path[0] else {
-            throw SubcommandError.incorrectRootName
+            fatalError("Path's first component does not match application's name")
         }
 
         for p in path[1...] {
