@@ -63,11 +63,28 @@ public struct CommandLineApplication {
     @discardableResult
     public mutating func addPath(
         _ path: [String],
-        with executor: @escaping ClosureExecutor.Closure
+        with executor: Executor
     ) -> Path {
         var command = self.addPath(path)
-        command.executor = ClosureExecutor(executor: executor)
+        command.executor = executor
 
+        return command
+    }
+
+    /// Add a path
+    ///
+    /// - Parameters:
+    ///   - path: the path
+    ///   - executor: the executor to be associated with the path
+    /// - Returns: a handle to the added path
+    /// - Throws: SubcommandError
+    @discardableResult
+    public mutating func addPath(
+        _ path: [String],
+        closure: @escaping ClosureExecutor.Closure
+    ) -> Path {
+        var command = self.addPath(path)
+        command.executor = ClosureExecutor(executor: closure)
         return command
     }
 
