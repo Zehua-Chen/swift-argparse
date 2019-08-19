@@ -1,50 +1,37 @@
 # AST
 
-````
-app-name command unnamed_params -named_params...
-````
+The AST stage is dedicated to purely parse an AST of the user input without any 
+setup information or type resolving. 
 
-- The parsed result is stored in `struct ASTContext`
+The AST is implemented as an array of declarations. The declarations are:
 
-## AST Rules
+- Primitive declaration
+- Option declaration
 
-### Subcommand
+## Primitive Declaration
 
-````
-string
-````
+A primitive declaration can be either of the following
+- string and boolean without prefix dashes;
+- integer and double with an optional prefix dash to denote a negative value
 
-### Unnamed Parameters
+## Option Declaration
 
-````
-string|boolean
-(dash) uint|udecimal
-````
-- Other unnamed param types are treated as params
+An option is made up of either `1-2` or `1-4`
 
-### Named Parameters
+1. any number of dashes
+2. string
+3. assignment operator 
+4. value, which can be any of the following:
+    1. string or boolean
+    2. integer and double with a dash prefix to denote negativity
 
-````
-dash(s) string assignment/endBlock string|bolean
-````
+## Location
 
-````
-dash(s) string assignment/endBlock (dash) uint|udecimal
-````
+All AST nodes should have a location associated with it.
 
-- The first string, **combined with the dashes** is the `name` of an named param;
-- Whatever comes after the `assignment` or `endBlock` is the `value`;
+## Note
 
-An implicit `true` named param is produced when
+The following are defered to the semantic stage:
 
-- When the block is followed by what can be the start of a new named param (dashes and 
-string);
-- When the block is the last one in the array
-
-````
-dash(s) string endBlock dash(s) string ...
-````
-
-````
-dash(s) string endBlock
-````
+- path resolving
+- abbreviated `true` options i.e. `-option`;
