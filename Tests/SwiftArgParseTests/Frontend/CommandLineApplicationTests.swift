@@ -13,9 +13,9 @@ final class CommandLineApplicationTests: XCTestCase {
         var app = CommandLineApplication(name: "tools")
         let rootNode = app._rootCommandNode
 
-        app.addPath(["tools", "test"]) { _ in }
-        app.addPath(["tools", "package", "generate"]) { _ in }
-        app.addPath(["tools", "package"]) { _ in }
+        app.usePath(["tools", "test"]) { _ in }
+        app.usePath(["tools", "package", "generate"]) { _ in }
+        app.usePath(["tools", "package"]) { _ in }
 
         // Test names
         XCTAssertEqual(rootNode.name, "tools")
@@ -33,17 +33,17 @@ final class CommandLineApplicationTests: XCTestCase {
         var app = CommandLineApplication(name: "tools")
         var counter = 0
 
-        app.addPath(["tools", "sub1"]) { (context) in
+        app.usePath(["tools", "sub1"]) { (context) in
             counter += context.namedParams["-data"] as! Int
         }
 
-        let tools = app.addPath(["tools"]) { (context) in
+        let tools = app.usePath(["tools"]) { (context) in
             counter += context.namedParams["--data"] as! Int
         }
 
         tools.registerNamedParam("--data", defaultValue: -100)
 
-        let sub2 = app.addPath(["tools", "sub2"]) { (context) in
+        let sub2 = app.usePath(["tools", "sub2"]) { (context) in
             counter += context.namedParams["--data"] as! Int
         }
 
@@ -59,7 +59,7 @@ final class CommandLineApplicationTests: XCTestCase {
     func testPostProcessingStage() {
         var app = CommandLineApplication(name: "tools")
 
-        let path = app.addPath(["tools", "test"])
+        let path = app.usePath(["tools", "test"])
         path.registerNamedParam("--str", type: String.self)
         path.registerNamedParam("--bool", type: String.self)
 

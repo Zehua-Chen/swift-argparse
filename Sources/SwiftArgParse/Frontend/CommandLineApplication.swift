@@ -49,7 +49,7 @@ public struct CommandLineApplication {
     /// - Returns: a handle to the added path
     /// - Throws: SubcommandError
     @discardableResult
-    public mutating func addPath(_ path: [String]) -> Path {
+    public mutating func usePath(_ path: [String]) -> Path {
         return Path(node: _completePath(path))
     }
 
@@ -61,11 +61,11 @@ public struct CommandLineApplication {
     /// - Returns: a handle to the added path
     /// - Throws: SubcommandError
     @discardableResult
-    public mutating func addPath(
+    public mutating func usePath(
         _ path: [String],
         with executor: Executor
     ) -> Path {
-        var command = self.addPath(path)
+        var command = self.usePath(path)
         command.executor = executor
 
         return command
@@ -79,11 +79,11 @@ public struct CommandLineApplication {
     /// - Returns: a handle to the added path
     /// - Throws: SubcommandError
     @discardableResult
-    public mutating func addPath(
+    public mutating func usePath(
         _ path: [String],
         closure: @escaping ClosureExecutor.Closure
     ) -> Path {
-        var command = self.addPath(path)
+        var command = self.usePath(path)
         command.executor = ClosureExecutor(executor: closure)
         return command
     }
