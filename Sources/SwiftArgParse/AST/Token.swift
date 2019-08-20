@@ -6,38 +6,42 @@
 //
 
 /// Token generaged by the Lexer
-///
-/// - string: string
-/// - boolean: boolean
-/// - uint: unsigned integer
-/// - udecimal: unsigned decimal
-/// - dash: dash `-`
-/// - assignment: assignment `=`
-public enum Token: Equatable, CustomStringConvertible {
-    case string(_ value: String)
-    case boolean(_ value: Bool)
-    case uint(_ value: UInt)
-    case udecimal(_ value: Double)
-    case dash
-    case assignment
-    case endBlock
+public struct Token: Equatable, CustomStringConvertible {
+
+    /// Value of the token
+    public enum Value: Equatable, CustomStringConvertible {
+        case string(_ value: String)
+        case boolean(_ value: Bool)
+        case uint(_ value: UInt)
+        case udouble(_ value: Double)
+        case dash
+        case assignment
+        case endBlock
+
+        public var description: String {
+            switch self {
+            case .string(let str):
+                return "\"\(str)\""
+            case .boolean(let b):
+                return "\(b)"
+            case .uint(let ui):
+                return "\(ui)"
+            case .udouble(let ud):
+                return "\(ud)"
+            case .dash:
+                return "'-'"
+            case .assignment:
+                return "'='"
+            case .endBlock:
+                return "end block"
+            }
+        }
+    }
+
+    public let location: SourceLocation
+    public let value: Value
 
     public var description: String {
-        switch self {
-        case .string(let str):
-            return "\"\(str)\""
-        case .boolean(let b):
-            return "\(b)"
-        case .uint(let ui):
-            return "\(ui)"
-        case .udecimal(let ud):
-            return "\(ud)"
-        case .dash:
-            return "'-'"
-        case .assignment:
-            return "'='"
-        case .endBlock:
-            return "end block"
-        }
+        return "\(self.value) at \(self.location)"
     }
 }
