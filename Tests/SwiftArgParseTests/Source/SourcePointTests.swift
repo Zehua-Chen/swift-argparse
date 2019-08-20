@@ -10,14 +10,31 @@ import XCTest
 
 class SourcePointTests: XCTestCase {
     func testCompare() {
+
         // < test
-        XCTAssert(SourcePoint(block: 0, index: 0) < SourcePoint(block: 0, index: 1))
-        XCTAssert(SourcePoint(block: 0, index: 0) < SourcePoint(block: 1, index: 0))
-        XCTAssert(SourcePoint(block: 0, index: 0) < SourcePoint(block: 1, index: 1))
+        XCTAssertLessThan(
+            SourcePoint(block: 0, index: 0),
+            SourcePoint(block: 0, index: 1))
+
+        XCTAssertLessThan(
+            SourcePoint(block: 0, index: 0),
+            SourcePoint(block: 1, index: 0))
+
+        XCTAssertLessThan(
+            SourcePoint(block: 0, index: 0),
+            SourcePoint(block: 1, index: 1))
 
         // > test
-        XCTAssert(SourcePoint(block: 0, index: 1) > SourcePoint(block: 0, index: 0))
-        XCTAssert(SourcePoint(block: 1, index: 0) > SourcePoint(block: 0, index: 0))
-        XCTAssert(SourcePoint(block: 1, index: 1) > SourcePoint(block: 0, index: 0))
+        XCTAssertGreaterThan(
+            SourcePoint(block: 0, index: 1),
+            SourcePoint(block: 0, index: 0))
+
+        XCTAssertGreaterThan(
+            SourcePoint(block: 1, index: 0),
+            SourcePoint(block: 0, index: 0))
+
+        XCTAssertGreaterThan(
+            SourcePoint(block: 1, index: 1),
+            SourcePoint(block: 0, index: 0))
     }
 }

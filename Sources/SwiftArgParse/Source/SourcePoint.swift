@@ -12,8 +12,8 @@ public struct SourcePoint:
 
     public typealias ArrayLiteralElement = Int
 
-    public let block: Int
-    public let index: Int
+    public var block: Int
+    public var index: Int
 
     public var description: String {
         return "(block: \(self.block), index: \(self.index)"
