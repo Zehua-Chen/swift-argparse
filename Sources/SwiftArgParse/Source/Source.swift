@@ -21,17 +21,16 @@ internal struct _Source: Sequence, IteratorProtocol {
 
     /// Current point in the input source
     internal var point: SourcePoint = .init(block: -1, index: -1)
-    fileprivate var _input: [String]
-    fileprivate var _inputIter: Array<String>.Iterator
+
+    fileprivate var _inputIter: ArraySlice<String>.Iterator
     fileprivate var _state: _State
 
     /// Create a source from a given input
     ///
     /// - Parameter input: the input to use
-    internal init(input: [String]) {
+    internal init(input: ArraySlice<String>) {
         assert(!input.isEmpty, "source's input must not be empty")
-        _input = input
-        _inputIter = _input.makeIterator()
+        _inputIter = input.makeIterator()
         let s = _inputIter.next()!
         _state = .startBlock(from: s, index: s.startIndex)
     }

@@ -16,7 +16,7 @@ internal struct _Parser {
     /// Create a new parser from given command line args
     ///
     /// - Parameter args: the command line args to use
-    internal init(args: [String]) {
+    internal init(args: ArraySlice<String>) {
         _lexer = _Lexer(source: _Source(input: args))
     }
 

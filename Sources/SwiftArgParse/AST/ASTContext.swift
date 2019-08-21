@@ -39,7 +39,7 @@ internal struct _ASTContext {
 
     internal var elements: [Element?] = []
 
-    internal init(args: [String]) throws {
+    internal init(args: ArraySlice<String>) throws {
         var parser = _Parser(args: args)
         try parser.parse(into: &self)
     }
