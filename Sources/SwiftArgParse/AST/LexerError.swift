@@ -10,7 +10,7 @@ public enum LexerError: Error {
     /// Error thrown when there is an expected character
     case unexpected(character: Character)
     /// Error thrown when the string is expected
-    case expecting(string: String)
+    case expecting(token: Token.Value, point: SourcePoint)
     /// Error thrown the the number fails to parse
     case unableToParseNumber
 }

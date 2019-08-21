@@ -10,12 +10,12 @@ import XCTest
 
 final class SourceTests: XCTestCase {
 
-    func enumerate(_ blocks: ArraySlice<String>) -> [_Source.Item] {
+    func enumerate(_ blocks: [String]) -> [_Source.Element] {
         var source = _Source(input: blocks)
-        var output = [_Source.Item]()
+        var output = [_Source.Element]()
 
-        while let letter = source.next() {
-            output.append(letter)
+        while let element = source.next() {
+            output.append(element)
         }
 
         return output
@@ -27,6 +27,7 @@ final class SourceTests: XCTestCase {
             .character("a"),
             .character("b"),
             .character("c"),
+            .endBlock
         ])
     }
 
@@ -40,6 +41,23 @@ final class SourceTests: XCTestCase {
             .character("d"),
             .endBlock,
             .character("e"),
+            .endBlock
         ])
+    }
+
+    func testPosition() {
+        var source = _Source(input: ["ab", "c"])
+
+        XCTAssertEqual(source.next(), .character("a"))
+        XCTAssertEqual(source.point, .init(block: 0, index: 0))
+
+        XCTAssertEqual(source.next(), .character("b"))
+        XCTAssertEqual(source.point, .init(block: 0, index: 1))
+
+        XCTAssertEqual(source.next(), .endBlock)
+        XCTAssertEqual(source.point, .init(block: 0, index: 2))
+
+        XCTAssertEqual(source.next(), .character("c"))
+        XCTAssertEqual(source.point, .init(block: 1, index: 0))
     }
 }

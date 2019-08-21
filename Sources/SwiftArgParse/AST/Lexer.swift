@@ -15,21 +15,26 @@ internal struct _Lexer {
 
     /// The source that the lexer gets input from
     fileprivate var _source: _Source
-    /// The current source item being processed
-    fileprivate var _item: _Source.Item?
 
+    /// The current source item being processed
+    fileprivate var _element: _Source.Element?
+
+    /// The start point of current token
+    fileprivate var _startPoint = SourcePoint(block: 0, index: 0)
+    fileprivate var _prevPoint = SourcePoint(block: 0, index: 0)
+
+    /// A queue of buffered tokens waiting to be nexted
     fileprivate var _queue = Queue<Token>()
 
-    fileprivate var _buffer: String = ""
-
-    fileprivate var _isLastEndBlockReturned = false
+    /// Buffer used to help lexing
+    fileprivate var _buffer = ""
 
     /// Create a new lexer using a specified source
     ///
     /// - Parameter source: the source to provide data to the lexer
     internal init(source: _Source) {
         _source = source
-        _item = _source.next()
+        _element = _source.next()
     }
 
     /// Get the next token from the lexer, if there is one. Otherwise, returns
@@ -64,27 +69,21 @@ internal struct _Lexer {
 
     fileprivate mutating func _extract() throws -> Token? {
         // If _item is nil then returns
-        guard _item != nil else {
-            if !_isLastEndBlockReturned {
-                _isLastEndBlockReturned = true
-                return .endBlock
-            }
-            
-            return nil
-        }
+        guard _element != nil else { return nil }
 
         _buffer = ""
+        _startPoint = _source.point
 
         // Process _item accordingly
-        switch _item! {
+        switch _element! {
         case .character(let c):
             switch c {
             case "=":
-                _item = _source.next()
-                return .assignment
+                _fetch()
+                return Token(location: _startPoint..._startPoint, value: .assignment)
             case "-":
-                _item = _source.next()
-                return .dash
+                _fetch()
+                return Token(location: _startPoint..._startPoint, value: .dash)
             case "t":
                 return try _boolean(literal: _Lexer._trueLiteral, value: true)
             case "f":
@@ -98,8 +97,8 @@ internal struct _Lexer {
                 throw LexerError.unexpected(character: c)
             }
         case .endBlock:
-            _item = _source.next()
-            return .endBlock
+            _fetch()
+            return Token(location: _startPoint..._startPoint, value: .endBlock)
         }
     }
 
@@ -110,25 +109,25 @@ internal struct _Lexer {
     /// - Returns: a token, if there is one
     /// - Throws: `ParserError`
     fileprivate mutating func _string() throws -> Token? {
-
-        while _item != nil && _item! != .endBlock {
-            switch _item! {
+        
+        while _element! != .endBlock {
+            switch _element! {
+            case .endBlock:
+                break
             case .character(let c):
                 switch c {
+                // '=' is a token, must return and not enumerate
                 case "=":
-                    return .string(_buffer)
+                    return Token(location: _startPoint..._prevPoint, value: .string(_buffer))
                 default:
                     _buffer.append(c)
                 }
-            // '=' is a token, must return and not enumerate
-            case .endBlock:
-                break
             }
 
-            _item = _source.next()
+            _fetch()
         }
 
-        return .string(_buffer)
+        return Token(location: _startPoint..._prevPoint, value: .string(_buffer))
     }
 
     /// Handles boolean token
@@ -142,9 +141,9 @@ internal struct _Lexer {
         var index = literal.startIndex
         let endIndex = literal.endIndex
 
-        while _item != nil && _item! != .endBlock {
+        while _element! != .endBlock {
 
-            switch _item! {
+            switch _element! {
             case .character(let c):
                 if c != literal[index] {
                     return try _string()
@@ -155,15 +154,15 @@ internal struct _Lexer {
                 break
             }
 
-            _item = _source.next()
+            _fetch()
             literal.formIndex(after: &index)
 
             if index == endIndex {
-                return .boolean(value)
+                return Token(location: _startPoint..._prevPoint, value: .boolean(value))
             }
         }
 
-        return .string(_buffer)
+        return try _string()
     }
 
     /// Parse an **unsigned** number token, `-` is treated as dash
@@ -184,32 +183,37 @@ internal struct _Lexer {
                     throw LexerError.unableToParseNumber
                 }
 
-                return Token.udecimal(d)
+                return Token(location: _startPoint..._prevPoint, value: .udouble(d))
             } else {
                 guard let i = UInt(_buffer) else {
                     throw LexerError.unableToParseNumber
                 }
 
-                return Token.uint(i)
+                return Token(location: _startPoint..._prevPoint, value: .uint(i))
             }
         }
 
-        while _item != nil && _item! != .endBlock {
+        while _element! != .endBlock {
 
-            switch _item! {
+            switch _element! {
             case .character(let c):
                 if c == "." {
                     isDecimal = true
                 }
-                
+
                 _buffer.append(c)
             case .endBlock:
                 return try compose()
             }
 
-            _item = _source.next()
+            _fetch()
         }
 
         return try compose()
+    }
+
+    fileprivate mutating func _fetch() {
+        _prevPoint = _source.point
+        _element = _source.next()
     }
 }
