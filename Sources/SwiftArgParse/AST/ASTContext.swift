@@ -10,11 +10,21 @@ internal struct _ASTContext {
     internal struct Path: Equatable {
         public var value: String
         public var location: SourceLocation
+
+        init(value: String, location: SourceLocation = [0, 0]...[0, 0]) {
+            self.value = value
+            self.location = location
+        }
     }
 
     internal struct Primitive: Equatable {
         public var value: Any
         public var location: SourceLocation
+
+        init(value: Any, location: SourceLocation = [0, 0]...[0, 0]) {
+            self.value = value
+            self.location = location
+        }
 
         internal static func ==(lhs: Primitive, rhs: Primitive) -> Bool {
             return lhs.location == rhs.location
@@ -25,6 +35,12 @@ internal struct _ASTContext {
         public var name: String
         public var value: Any?
         public var location: SourceLocation
+
+        init(name: String, value: Any?, location: SourceLocation = [0, 0]...[0, 0]) {
+            self.name = name
+            self.value = value
+            self.location = location
+        }
 
         internal static func ==(lhs: Option, rhs: Option) -> Bool {
             return lhs.name == rhs.name && lhs.location == rhs.location
@@ -39,9 +55,20 @@ internal struct _ASTContext {
 
     internal var elements: [Element?] = []
 
+    /// Construct AST Context from given command line arguments
+    ///
+    /// - Parameter args: a view into the command line arguments
+    /// - Throws: ParserError, LexerError
     internal init(args: ArraySlice<String>) throws {
         var parser = _Parser(args: args)
         try parser.parse(into: &self)
+    }
+
+    /// Construct AST Context using the given elements
+    ///
+    /// - Parameter elements: the elements to populate the AST context with
+    internal init(elements: [Element?]) {
+        self.elements = elements
     }
 
     internal mutating func append(_ primitive: Primitive) {
@@ -63,6 +90,14 @@ internal extension _ASTContext.Element {
         case .path(let p):
             return p.location
         }
+    }
+
+    func asPath() -> _ASTContext.Path {
+        guard case .path(let p) = self else {
+            fatalError()
+        }
+
+        return p
     }
 
     func asPrimitive() -> _ASTContext.Primitive {

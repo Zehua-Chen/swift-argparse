@@ -29,10 +29,14 @@ internal struct _Source: Sequence, IteratorProtocol {
     ///
     /// - Parameter input: the input to use
     internal init(input: ArraySlice<String>) {
-        assert(!input.isEmpty, "source's input must not be empty")
         _inputIter = input.makeIterator()
-        let s = _inputIter.next()!
-        _state = .startBlock(from: s, index: s.startIndex)
+
+        if input.isEmpty {
+            _state = .endFile
+        } else {
+            let s = _inputIter.next()!
+            _state = .startBlock(from: s, index: s.startIndex)
+        }
     }
 
     internal mutating func next() -> Element? {

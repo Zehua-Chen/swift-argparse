@@ -7,12 +7,21 @@
 
 import SwiftArgParse
 
-//struct Root: Command {
-//    func setup(with config: Configuration) {
-//    }
-//
-//    func run() {
-//    }
-//}
+struct SubA: Command {
+    func setup(with config: Configuration) {
+    }
 
-//var app = ConsoleApplication(name: "example", command: Root())
+    func run() {
+    }
+}
+
+struct Application: Command {
+    func setup(with config: Configuration) {
+        config.use(SubA(), for: "suba")
+    }
+
+    func run() {
+    }
+}
+
+CommandLine.run(Application())
