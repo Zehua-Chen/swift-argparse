@@ -6,3 +6,9 @@
 //
 
 public typealias SourceLocation = ClosedRange<SourcePoint>
+
+public extension SourceLocation {
+    func joined(with other: SourceLocation) -> SourceLocation {
+        return self.lowerBound...other.upperBound
+    }
+}

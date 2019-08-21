@@ -8,6 +8,16 @@
 /// Token generaged by the Lexer
 public struct Token: Equatable, CustomStringConvertible {
 
+    public enum ValueType: Equatable {
+        case string
+        case boolean
+        case uint
+        case double
+        case dash
+        case assignment
+        case endBlock
+    }
+
     /// Value of the token
     public enum Value: Equatable, CustomStringConvertible {
         case string(_ value: String)
