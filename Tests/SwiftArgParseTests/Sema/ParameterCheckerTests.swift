@@ -100,4 +100,36 @@ class ParameterCheckerTests: XCTestCase {
             XCTFail()
         })
     }
+
+    func testOverflow() {
+        let context = try! _ASTContext(args: [
+            "a",
+            "1",
+            "2",
+            "true"
+        ])
+
+        let config = Configuration()
+
+        config.use(Parameter(type: String.self))
+        config.use(Parameter(type: Int.self, isRepeating: true))
+
+        XCTAssertThrowsError(try _ParameterChecker().run(on: context, with: config))
+    }
+
+    func testUnderflow() {
+        let context = try! _ASTContext(args: [
+            "a",
+            "1",
+            "2"
+        ])
+
+        let config = Configuration()
+
+        config.use(Parameter(type: String.self))
+        config.use(Parameter(type: Int.self, isRepeating: true))
+        config.use(Parameter(type: Bool.self))
+
+        XCTAssertThrowsError(try _ParameterChecker().run(on: context, with: config))
+    }
 }

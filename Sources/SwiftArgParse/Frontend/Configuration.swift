@@ -8,6 +8,7 @@
 public class Configuration {
     internal var options: [String: Option] = [:]
     internal var optionAliases: [String: String] = [:]
+
     internal var parameters: [Parameter] = []
     internal var children: [String: Configuration] = [:]
     internal var command: Command?
@@ -18,7 +19,7 @@ public class Configuration {
         self.options[option.name] = option
 
         if let alias = option.alias {
-            optionAliases[alias] = option.name
+            self.optionAliases[alias] = option.name
         }
     }
 

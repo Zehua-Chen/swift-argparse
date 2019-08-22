@@ -21,9 +21,9 @@ class OptionProcessorTests: XCTestCase {
         ])
 
         let config = Configuration()
-        config.use(Option(name: "--bool", type: Bool.self))
-        config.use(Option(name: "--message", type: String.self))
-        config.use(Option(name: "--notmerged", type: String.self))
+        config.use(Option(name: "--bool", defaultValue: true))
+        config.use(Option(name: "--message", defaultValue: ""))
+        config.use(Option(name: "--notmerged", defaultValue: ""))
 
         _OptionProcessor().merge(&context, with: config)
 
@@ -43,8 +43,8 @@ class OptionProcessorTests: XCTestCase {
         ])
 
         let config = Configuration()
-        config.use(Option(name: "--yes", type: Bool.self, help: "", alias: "-y"))
-        config.use(Option(name: "--full", type: Bool.self, help: ""))
+        config.use(Option(name: "--yes", defaultValue: true, alias: "-y", help: ""))
+        config.use(Option(name: "--full", defaultValue: true, alias: nil, help: ""))
 
         _OptionProcessor().alias(&context, with: config)
 
@@ -61,9 +61,9 @@ class OptionProcessorTests: XCTestCase {
         ])
 
         let config = Configuration()
-        config.use(Option(name: "--bool", type: Bool.self))
-        config.use(Option(name: "--message", type: String.self))
-        config.use(Option(name: "--number", type: Double.self))
+        config.use(Option(name: "--bool", defaultValue: true))
+        config.use(Option(name: "--message", defaultValue: ""))
+        config.use(Option(name: "--number", defaultValue: 0.0))
         config.allowsUnregisteredOptions = true
 
         XCTAssertNoThrow(try _OptionProcessor().check(context, with: config))
@@ -78,9 +78,9 @@ class OptionProcessorTests: XCTestCase {
         ])
 
         let config = Configuration()
-        config.use(Option(name: "--bool", type: Bool.self))
-        config.use(Option(name: "--message", type: String.self))
-        config.use(Option(name: "--number", type: Double.self))
+        config.use(Option(name: "--bool", defaultValue: false))
+        config.use(Option(name: "--message", defaultValue: ""))
+        config.use(Option(name: "--number", defaultValue: 10))
 
         XCTAssertThrowsError(try _OptionProcessor().check(context, with: config), "", { error in
             if case OptionError.typeMismatch(let name, let expecting, let found, _) = error {

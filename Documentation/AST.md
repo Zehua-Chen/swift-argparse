@@ -35,3 +35,4 @@ The following are defered to the semantic stage:
 
 - path resolving
 - abbreviated `true` options i.e. `-option`;
+- `-option value` parsing (AST handles `-option=value`);

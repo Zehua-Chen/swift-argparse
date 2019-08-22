@@ -9,7 +9,7 @@ import XCTest
 @testable import SwiftArgParse
 
 extension Command {
-    func run() { }
+    func run(with context: CommandContext) { }
 }
 
 final class ConfigurationTests: XCTestCase {
