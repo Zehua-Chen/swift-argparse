@@ -78,7 +78,7 @@ internal struct _Parser {
 
         switch peek!.value {
         case .dash, .string(_):
-            return try _namedParam(into: &context, startsAt: startLocation)
+            return try _option(into: &context, startsAt: startLocation)
         case .udouble(let ud):
             let _ = try _lexer.next()
             context.append(_Primitive(
@@ -101,7 +101,7 @@ internal struct _Parser {
         }
     }
 
-    fileprivate mutating func _namedParam(into context: inout _ASTContext, startsAt: SourceLocation) throws {
+    fileprivate mutating func _option(into context: inout _ASTContext, startsAt: SourceLocation) throws {
         var token = try _lexer.next()
         // Gather dashes
         while token != nil && .dash == token!.value {

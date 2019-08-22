@@ -6,14 +6,16 @@
 //
 
 public class Configuration {
-    fileprivate var _options: [String: Option] = [:]
+    internal var options: [String: Option] = [:]
     fileprivate var _optionAliases: [String: String] = [:]
     fileprivate var _parameters: [Parameter] = []
     internal var children: [String: Configuration] = [:]
     internal var command: Command?
+
+    public var allowsUnregisteredOptions: Bool = false
     
     public func use(_ option: Option) {
-        _options[option.name] = option
+        self.options[option.name] = option
 
         if let alias = option.alias {
             _optionAliases[alias] = option.name

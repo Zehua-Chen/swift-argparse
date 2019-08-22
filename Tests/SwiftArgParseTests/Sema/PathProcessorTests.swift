@@ -8,7 +8,7 @@
 import XCTest
 @testable import SwiftArgParse
 
-class PathResolverTests: XCTestCase {
+class PathProcessorTests: XCTestCase {
 
     let configuration: Configuration = Configuration()
 
@@ -25,7 +25,7 @@ class PathResolverTests: XCTestCase {
 
     func testEmpty() {
         var context = _ASTContext(elements: [])
-        _PathResolver().run(on: &context, with: self.configuration)
+        _PathProcessor().run(on: &context, with: self.configuration)
 
         XCTAssertTrue(context.elements.isEmpty)
     }
@@ -35,7 +35,7 @@ class PathResolverTests: XCTestCase {
             .primitive(.init(value: "1-1"))
         ])
 
-        _PathResolver().run(on: &context, with: self.configuration)
+        _PathProcessor().run(on: &context, with: self.configuration)
 
         XCTAssertEqual(context.elements[0]!.asPath().value, "1-1")
     }
@@ -46,7 +46,7 @@ class PathResolverTests: XCTestCase {
             .primitive(.init(value: "2-0"))
         ])
 
-        _PathResolver().run(on: &context, with: self.configuration)
+        _PathProcessor().run(on: &context, with: self.configuration)
 
         XCTAssertEqual(context.elements[0]!.asPath().value, "1-0")
         XCTAssertEqual(context.elements[1]!.asPath().value, "2-0")
@@ -57,7 +57,7 @@ class PathResolverTests: XCTestCase {
             .primitive(.init(value: "param"))
         ])
 
-        _PathResolver().run(on: &context, with: self.configuration)
+        _PathProcessor().run(on: &context, with: self.configuration)
 
         XCTAssertEqual(context.elements[0]!.asPrimitive().value as! String, "param")
     }
@@ -68,7 +68,7 @@ class PathResolverTests: XCTestCase {
             .primitive(.init(value: "param"))
         ])
 
-        _PathResolver().run(on: &context, with: self.configuration)
+        _PathProcessor().run(on: &context, with: self.configuration)
 
         XCTAssertEqual(context.elements[0]!.asPath().value, "1-1")
         XCTAssertEqual(context.elements[1]!.asPrimitive().value as! String, "param")

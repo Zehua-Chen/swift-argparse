@@ -17,7 +17,7 @@ public extension CommandLine {
         var context = try! _ASTContext(args: self.arguments[1...])
 
         // Semantic Stages
-        _PathResolver().run(on: &context, with: config)
+        _PathProcessor().run(on: &context, with: config)
 
         print(context.elements)
     }

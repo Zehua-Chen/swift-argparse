@@ -7,7 +7,7 @@
 
 fileprivate typealias _Path = _ASTContext.Path
 
-internal struct _PathResolver {
+internal struct _PathProcessor {
     func run(on context: inout _ASTContext, with root: Configuration) {
         var node = root
 

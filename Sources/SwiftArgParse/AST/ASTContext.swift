@@ -116,3 +116,16 @@ internal extension _ASTContext.Element {
         return o
     }
 }
+
+extension _ASTContext.Element: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .path(let path):
+            return "path: \(path.value)"
+        case .primitive(let primitive):
+            return "\(primitive.value)"
+        case .option(let option):
+            return "\(option.name)=\(option.value ?? "?")"
+        }
+    }
+}
