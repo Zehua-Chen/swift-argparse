@@ -10,12 +10,12 @@ import XCTest
 
 final class LexerTests: XCTestCase {
 
-    func tokenize(_ data: [String]) throws -> [Token] {
-        var lexer = _Lexer(source: _Source(input: data[0...]))
-        var output = [Token]()
+    func tokenize(_ data: [String]) throws -> [Token.Value] {
+        var lexer = _Lexer(source: _Source(input: data[...]))
+        var output = [Token.Value]()
 
         while let token = try lexer.next() {
-            output.append(token)
+            output.append(token.value)
         }
 
         return output
@@ -97,34 +97,59 @@ final class LexerTests: XCTestCase {
         let tokens = try! tokenize([
             "-positive=123.23",
             "-negative=-123.23"
-            ])
+        ])
 
         XCTAssertEqual(tokens, [
             .dash,
             .string("positive"),
             .assignment,
-            .udecimal(123.23),
+            .udouble(123.23),
             .endBlock,
             .dash,
             .string("negative"),
             .assignment,
             .dash,
-            .udecimal(123.23),
+            .udouble(123.23),
             .endBlock
         ])
     }
 
     func testPeek() {
-        let input = ["-positive=true"]
-        var lexer = _Lexer(source: _Source(input: input[...]))
+        let args = ["-positive=true"]
+        var lexer = _Lexer(source: _Source(input: args[...]))
 
-        XCTAssertEqual(try! lexer.peek(), .dash)
-        XCTAssertEqual(try! lexer.peek(offset: 1), .string("positive"))
-        
-        XCTAssertEqual(try! lexer.next(), .dash)
-        XCTAssertEqual(try! lexer.next(), .string("positive"))
+        XCTAssertEqual(try! lexer.peek()!.value, .dash)
+        XCTAssertEqual(try! lexer.peek(offset: 1)!.value, .string("positive"))
 
-        XCTAssertEqual(try! lexer.peek(), .assignment)
-        XCTAssertEqual(try! lexer.next(), .assignment)
+        XCTAssertEqual(try! lexer.next()!.value, .dash)
+        XCTAssertEqual(try! lexer.next()!.value, .string("positive"))
+
+        XCTAssertEqual(try! lexer.peek()!.value, .assignment)
+        XCTAssertEqual(try! lexer.next()!.value, .assignment)
+    }
+
+    func testPosition() {
+        let args = ["-truth=true", "something", "12.33"]
+        var lexer = _Lexer(source: _Source(input: args[...]))
+        // -
+        XCTAssertEqual(try! lexer.next()!.location, [0, 0]...[0, 0])
+        // name
+        XCTAssertEqual(try! lexer.next()!.location, [0, 1]...[0, 5])
+        // =
+        XCTAssertEqual(try! lexer.next()!.location, [0, 6]...[0, 6])
+        // true
+        XCTAssertEqual(try! lexer.next()!.location, [0, 7]...[0, 10])
+        // end block
+        XCTAssertEqual(try! lexer.next()!.location, [0, 11]...[0, 11])
+
+        // something
+        XCTAssertEqual(try! lexer.next()!.location, [1, 0]...[1, 8])
+        // end block
+        XCTAssertEqual(try! lexer.next()!.location, [1, 9]...[1, 9])
+
+        // 12.33
+        XCTAssertEqual(try! lexer.next()!.location, [2, 0]...[2, 4])
+        // end block
+        XCTAssertEqual(try! lexer.next()!.location, [2, 5]...[2, 5])
     }
 }

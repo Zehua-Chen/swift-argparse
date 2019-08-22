@@ -9,8 +9,7 @@
 public enum ParserError: Error, CustomStringConvertible {
     case unexpected(token: Token)
     case unexepctedEnd
-    case expecting(token: Token)
-    case incorrectRootSubcommand(found: String, expecting: String)
+    case expecting(tokenValueType: Token.ValueType, location: SourceLocation)
 
     public var description: String {
         switch self {
@@ -20,8 +19,6 @@ public enum ParserError: Error, CustomStringConvertible {
             return "unexpected end"
         case .expecting(let token):
             return "expecting token \(token)"
-        case .incorrectRootSubcommand(let found, let expecting):
-            return "expecting root command \(expecting), but found \(found)"
         }
     }
 }

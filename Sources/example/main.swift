@@ -7,41 +7,29 @@
 
 import SwiftArgParse
 
-var app = CommandLineApplication(name: "example")
+struct Calculator: Command {
+    func setup(with config: Configuration) {
+        config.use(Parameter(type: Double.self))
+        config.use(Parameter(type: Double.self))
+    }
 
-try! app.addPath(["example"]) { (context) in
-    print("example")
+    func run(with context: CommandContext) {
+        let result = (context[0] as! Double) + (context[1] as! Double)
+        print("result = \(result)")
+    }
 }
 
-try! app.addPath(["example", "playground"]) { (context) in
-    print("example-print")
-    print("unnamed: \(context.unnamedParams))")
-    print("named: \(context.namedParams))")
+struct Application: Command {
+    func setup(with config: Configuration) {
+        config.use(Calculator(), for: "calc")
+        config.use(Option(name: "--hello", defaultValue: false))
+    }
+
+    func run(with context: CommandContext) {
+        if context.hello as! Bool {
+            print("hello world")
+        }
+    }
 }
 
-let log = try! app.addPath(["example", "log"]) { (context) in
-    print("example-log")
-    print("message=\(context.namedParams["--message"] as! String)")
-    print("color=\(context.namedParams["--color"] as! String)")
-}
-
-log.registerNamedParam("--color", defaultValue: "blue")
-log.registerNamedParam("--message", type: String.self)
-
-let add = try! app.addPath(["example", "add"]) { (context) in
-    print("example-add")
-    let a = context.unnamedParams[0] as! Int
-    let b = context.unnamedParams[1] as! Int
-    let c = a + b
-
-    print("\(a) + \(b) = \(c)")
-}
-
-add.addUnnamedParam(Int.self)
-add.addUnnamedParam(Int.self)
-
-do {
-   try app.run()
-} catch {
-    print(error)
-}
+try! CommandLine.run(Application())

@@ -1,3 +1,3 @@
 # TODOs
 
-- Improve code path of the Parser
+- [ ] Print help information
