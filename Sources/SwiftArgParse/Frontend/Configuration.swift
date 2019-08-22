@@ -7,8 +7,8 @@
 
 public class Configuration {
     internal var options: [String: Option] = [:]
-    fileprivate var _optionAliases: [String: String] = [:]
-    fileprivate var _parameters: [Parameter] = []
+    internal var optionAliases: [String: String] = [:]
+    internal var parameters: [Parameter] = []
     internal var children: [String: Configuration] = [:]
     internal var command: Command?
 
@@ -18,12 +18,12 @@ public class Configuration {
         self.options[option.name] = option
 
         if let alias = option.alias {
-            _optionAliases[alias] = option.name
+            optionAliases[alias] = option.name
         }
     }
 
     public func use(_ parameter: Parameter) {
-        _parameters.append(parameter)
+        self.parameters.append(parameter)
     }
 
     public func use(_ command: Command, for name: String) {

@@ -14,6 +14,7 @@ public enum OptionError: Error {
 internal struct _OptionProcessor {
     internal func run(on context: inout _ASTContext, with config: Configuration) throws {
         self.merge(&context, with: config)
+        self.alias(&context, with: config)
         try self.check(context, with: config)
     }
 
@@ -79,6 +80,20 @@ internal struct _OptionProcessor {
                     found: actualType,
                     location: option.location)
             }
+        }
+    }
+
+    internal func alias(_ context: inout _ASTContext, with config: Configuration) {
+        for i in 0..<context.elements.count {
+            // Fetch non-nil, option elements
+            guard let element = context.elements[i] else { continue }
+            guard case .option(var option) = element else { continue }
+
+            // If current name is an alias
+            guard let aliased = config.optionAliases[option.name] else { continue }
+            option.name = aliased
+
+            context.elements[i] = .option(option)
         }
     }
 }

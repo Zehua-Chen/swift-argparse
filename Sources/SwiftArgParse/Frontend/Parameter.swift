@@ -12,10 +12,10 @@ public struct Parameter {
     public var isRepeating: Bool
 
     public init<T>(
-        name: String,
         type: T.Type,
-        help: String = "",
-        isRepeating: Bool = false
+        isRepeating: Bool = false,
+        name: String = "",
+        help: String = ""
     ) {
         self.name = name
         self.type = type

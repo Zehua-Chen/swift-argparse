@@ -8,7 +8,6 @@
 import XCTest
 @testable import SwiftArgParse
 
-
 class OptionProcessorTests: XCTestCase {
     func testMerging() {
         var context = try! _ASTContext(args: [
@@ -35,6 +34,22 @@ class OptionProcessorTests: XCTestCase {
         XCTAssertEqual(context.elements[4]!.asOption().value as! String, "something")
         XCTAssertNotNil(context.elements[5])
         XCTAssertEqual(context.elements[6]!.asOption().value as! Bool, true)
+    }
+
+    func testAlias() {
+        var context = try! _ASTContext(args: [
+            "-y=true",
+            "--full=false"
+        ])
+
+        let config = Configuration()
+        config.use(Option(name: "--yes", type: Bool.self, help: "", alias: "-y"))
+        config.use(Option(name: "--full", type: Bool.self, help: ""))
+
+        _OptionProcessor().alias(&context, with: config)
+
+        XCTAssertEqual(context.elements[0]!.asOption().name, "--yes")
+        XCTAssertEqual(context.elements[1]!.asOption().name, "--full")
     }
 
     func testCheckOK() {
