@@ -11,7 +11,7 @@ import XCTest
 final class LexerTests: XCTestCase {
 
     func tokenize(_ data: [String]) throws -> [Token.Value] {
-        var lexer = _Lexer(source: _Source(input: data))
+        var lexer = _Lexer(source: _Source(input: data[...]))
         var output = [Token.Value]()
 
         while let token = try lexer.next() {
@@ -116,7 +116,7 @@ final class LexerTests: XCTestCase {
 
     func testPeek() {
         let args = ["-positive=true"]
-        var lexer = _Lexer(source: _Source(input: args))
+        var lexer = _Lexer(source: _Source(input: args[...]))
 
         XCTAssertEqual(try! lexer.peek()!.value, .dash)
         XCTAssertEqual(try! lexer.peek(offset: 1)!.value, .string("positive"))
@@ -130,7 +130,7 @@ final class LexerTests: XCTestCase {
 
     func testPosition() {
         let args = ["-truth=true", "something", "12.33"]
-        var lexer = _Lexer(source: _Source(input: args))
+        var lexer = _Lexer(source: _Source(input: args[...]))
         // -
         XCTAssertEqual(try! lexer.next()!.location, [0, 0]...[0, 0])
         // name

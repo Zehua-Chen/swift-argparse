@@ -11,7 +11,7 @@ import XCTest
 final class SourceTests: XCTestCase {
 
     func enumerate(_ blocks: [String]) -> [_Source.Element] {
-        var source = _Source(input: blocks)
+        var source = _Source(input: blocks[...])
         var output = [_Source.Element]()
 
         while let element = source.next() {
