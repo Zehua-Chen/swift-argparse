@@ -8,6 +8,14 @@
 fileprivate typealias _Path = _ASTContext.Path
 
 internal struct _PathProcessor {
+
+    /// Go through each string element, convert them to path element
+    /// if a path can be traced in the configuration tree with the string
+    /// element
+    ///
+    /// - Parameters:
+    ///   - context: the context to work with
+    ///   - root: the root configuration object
     func run(on context: inout _ASTContext, with root: Configuration) {
         var node = root
 

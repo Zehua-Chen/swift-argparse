@@ -14,6 +14,12 @@ public enum ParameterError: Error {
 
 internal struct _ParameterChecker {
 
+    /// Run parameter check. Checks the type with each parameter
+    ///
+    /// - Parameters:
+    ///   - context: the context to get parameters from
+    ///   - config: the configuration containing parameter information
+    /// - Throws: ParameterError
     internal func run(on context: _ASTContext, with config: Configuration) throws {
         let elements = context.elements.lazy
             .enumerated()

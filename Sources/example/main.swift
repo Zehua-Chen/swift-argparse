@@ -7,24 +7,28 @@
 
 import SwiftArgParse
 
-struct SubA: Command {
+struct Calculator: Command {
     func setup(with config: Configuration) {
-        config.use(Parameter(type: String.self))
-        config.use(Option(name: "--age", defaultValue: 0))
+        config.use(Parameter(type: Double.self))
+        config.use(Parameter(type: Double.self))
     }
 
     func run(with context: CommandContext) {
-        print(context.age as! Int)
-        print(context[0] as! String)
+        let result = (context[0] as! Double) + (context[1] as! Double)
+        print("result = \(result)")
     }
 }
 
 struct Application: Command {
     func setup(with config: Configuration) {
-        config.use(SubA(), for: "suba")
+        config.use(Calculator(), for: "calc")
+        config.use(Option(name: "--hello", defaultValue: false))
     }
 
     func run(with context: CommandContext) {
+        if context.hello as! Bool {
+            print("hello world")
+        }
     }
 }
 

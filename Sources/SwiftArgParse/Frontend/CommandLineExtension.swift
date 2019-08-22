@@ -8,6 +8,15 @@
 import Foundation
 
 public extension CommandLine {
+
+    /// Run the command
+    ///
+    /// Only the [1...] arguments are parsed, since the first argument
+    /// is always right.
+    /// - Parameters:
+    ///   - command: a command to run
+    ///   - arguments: an array of arguments
+    /// - Throws: any error
     static func run(_ command: Command, with arguments: [String] = CommandLine.arguments) throws {
         // Configure the application
         var config = Configuration()

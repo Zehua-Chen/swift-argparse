@@ -7,9 +7,14 @@
 
 @dynamicMemberLookup
 public struct CommandContext {
+
+    /// Options that the user input
     public var options: [String: Any] = [:]
+
+    /// Parameters that the user input
     public var parameters: [Any] = []
 
+    /// The prefix to use when looking up options by keypath
     public var commonOptionPrefix: String = "--"
 
     internal init(astContext: _ASTContext, config: Configuration) {
