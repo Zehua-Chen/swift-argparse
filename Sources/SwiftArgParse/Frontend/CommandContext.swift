@@ -35,9 +35,9 @@ public struct CommandContext {
         }
 
         // Apply default values
-        for optionDefault in config.optionDefaults {
-            if self.options[optionDefault.key] == nil {
-                self.options[optionDefault.key] = optionDefault.value
+        for option in config.options {
+            if self.options[option.key] == nil {
+                self.options[option.key] = option.value.defaultValue
             }
         }
     }

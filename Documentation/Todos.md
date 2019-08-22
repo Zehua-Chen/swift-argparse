@@ -1,3 +1,3 @@
 # TODOs
 
-- Revise lexer to give location information
+- [ ] Print help information

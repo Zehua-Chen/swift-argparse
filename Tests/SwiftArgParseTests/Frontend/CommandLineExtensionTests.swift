@@ -16,7 +16,7 @@ class CommandLineExtensionTests: XCTestCase {
 
             func setup(with config: Configuration) {
                 config.use(Option(name: "--value", defaultValue: 10))
-                config.use(Option(name: "--name", type: String.self, alias: "-n"))
+                config.use(Option(name: "--name", defaultValue: "Peter", alias: "-n"))
             }
 
             func run(with context: CommandContext) {

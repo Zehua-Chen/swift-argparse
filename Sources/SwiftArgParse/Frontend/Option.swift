@@ -11,26 +11,14 @@ public struct Option {
     public var type: Any.Type
 
     public var alias: String?
-    public var defaultValue: Any?
-
-    public init(
-        name: String,
-        type: Any.Type,
-        help: String = "",
-        alias: String? = nil
-    ) {
-        self.name = name
-        self.help = help
-        self.type = type
-        self.alias = alias
-    }
+    public var defaultValue: Any
 
     @inlinable
     public init<T>(
         name: String,
         defaultValue: T,
-        help: String = "",
-        alias: String? = nil
+        alias: String? = nil,
+        help: String = ""
     ) {
         self.name = name
         self.defaultValue = defaultValue
