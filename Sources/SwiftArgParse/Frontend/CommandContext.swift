@@ -5,9 +5,12 @@
 //  Created by Zehua Chen on 8/22/19.
 //
 
+@dynamicMemberLookup
 public struct CommandContext {
     public var options: [String: Any] = [:]
     public var parameters: [Any] = []
+
+    public var commonOptionPrefix: String = "--"
 
     internal init(astContext: _ASTContext, config: Configuration) {
         let elements = astContext.elements.lazy
@@ -37,5 +40,13 @@ public struct CommandContext {
                 self.options[optionDefault.key] = optionDefault.value
             }
         }
+    }
+
+    public subscript(dynamicMember member: String) -> Any? {
+        return self.options["\(self.commonOptionPrefix)\(member)"]
+    }
+
+    public subscript(paramIndex: Int) -> Any {
+        return self.parameters[paramIndex]
     }
 }

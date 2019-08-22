@@ -24,6 +24,10 @@ internal struct _ParameterChecker {
 
                 return (offset, element!)
             })
+            .filter({ (offset, element) in
+                if case .primitive = element { return true }
+                return false
+            })
 
         var elementIndex = 0
         var paramConfigIndex = 0

@@ -8,13 +8,14 @@
 import Foundation
 
 public extension CommandLine {
-    static func run(_ command: Command) throws {
+    static func run(_ command: Command, with arguments: [String] = CommandLine.arguments) throws {
         // Configure the application
         var config = Configuration()
+        config.command = command
         command.setup(with: config)
 
         // Parse AST
-        var context = try! _ASTContext(args: self.arguments[1...])
+        var context = try! _ASTContext(args: arguments[1...])
 
         // Semantic Stages
         _PathProcessor().run(on: &context, with: config)

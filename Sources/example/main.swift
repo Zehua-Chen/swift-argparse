@@ -14,7 +14,8 @@ struct SubA: Command {
     }
 
     func run(with context: CommandContext) {
-        print(context.options)
+        print(context.age as! Int)
+        print(context[0] as! String)
     }
 }
 
