@@ -7,10 +7,12 @@
 
 public enum OptionError: Error {
     case optionNeedsValue(name: String, location: SourceLocation)
+    case unrecogznied(name: String, location: SourceLocation)
+    case typeMismatch(name: String, expecting: Any.Type, found: Any.Type, location: SourceLocation)
 }
 
 internal struct _OptionProcessor {
-    func run(on context: inout _ASTContext, with config: Configuration) throws {
+    internal func run(on context: inout _ASTContext, with config: Configuration) throws {
         self.merge(&context, with: config)
         try self.check(context, with: config)
     }
@@ -55,7 +57,28 @@ internal struct _OptionProcessor {
         }
     }
 
-    fileprivate func check(_ context: _ASTContext, with config: Configuration) throws {
+    internal func check(_ context: _ASTContext, with config: Configuration) throws {
+        for i in 0..<context.elements.count {
+            guard let element = context.elements[i] else { continue }
+            guard case .option(let option) = element else { continue }
 
+            guard let expectingType = config.options[option.name]?.type else {
+                if config.allowsUnregisteredOptions {
+                    continue
+                }
+
+                throw OptionError.unrecogznied(name: option.name, location: option.location)
+            }
+
+            let actualType = type(of: option.value!)
+
+            if actualType != expectingType {
+                throw OptionError.typeMismatch(
+                    name: option.name,
+                    expecting: expectingType,
+                    found: actualType,
+                    location: option.location)
+            }
+        }
     }
 }
