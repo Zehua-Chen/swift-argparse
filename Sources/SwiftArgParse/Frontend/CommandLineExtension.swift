@@ -8,9 +8,9 @@
 import Foundation
 
 public extension CommandLine {
-    static func run(_ command: Command) {
+    static func run(_ command: Command) throws {
         // Configure the application
-        let config = Configuration()
+        var config = Configuration()
         command.setup(with: config)
 
         // Parse AST
@@ -19,6 +19,18 @@ public extension CommandLine {
         // Semantic Stages
         _PathProcessor().run(on: &context, with: config)
 
-        print(context.elements)
+        // Trace the path
+        // _PathProcessor should ensure that all paths are at the beginning
+        // of the ast elements and all paths are valid
+        for case .some(let element) in context.elements {
+            guard case .path(let path) = element else { break }
+
+            config = config.children[path.value]!
+        }
+
+        try _OptionProcessor().run(on: &context, with: config)
+        try _ParameterChecker().run(on: context, with: config)
+
+        config.command?.run(with: CommandContext(astContext: context, config: config))
     }
 }

@@ -8,5 +8,5 @@
 /// A path in the command line application
 public protocol Command {
     func setup(with config: Configuration)
-    func run()
+    mutating func run(with context: CommandContext)
 }
