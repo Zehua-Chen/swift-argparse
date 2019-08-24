@@ -41,6 +41,12 @@ public extension CommandLine {
         try _OptionProcessor().run(on: &context, with: config)
         try _ParameterChecker().run(on: context, with: config)
 
-        config.command?.run(with: CommandContext(astContext: context, config: config))
+        let commandContext = CommandContext(astContext: context, config: config)
+
+        if commandContext.options["--help"] as! Bool {
+            print(config)
+        }
+
+        config.command?.run(with: commandContext)
     }
 }

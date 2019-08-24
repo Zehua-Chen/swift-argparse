@@ -22,7 +22,7 @@ struct Calculator: Command {
 struct Application: Command {
     func setup(with config: Configuration) {
         config.use(Calculator(), for: "calc")
-        config.use(Option(name: "--hello", defaultValue: false))
+        config.use(Option(name: "--hello", defaultValue: false, alias: "-h", help: "message"))
     }
 
     func run(with context: CommandContext) {
