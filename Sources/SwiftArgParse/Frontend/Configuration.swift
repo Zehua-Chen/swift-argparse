@@ -35,15 +35,16 @@ public class Configuration: CustomStringConvertible {
             }
 
             help += "\(value.name)"
-            help += "=\(value.defaultValue)"
-            help += "\t\(value.help)\n"
+            help += "\t\t\t\(value.help)\n"
         }
 
         // MARK: Print parameters
         help += "Parameters:\n"
 
         for parameter in parameters {
-            help += "\t\(parameter.name)\t\(parameter.help)"
+            if !parameter.name.isEmpty {
+                help += "\t\(parameter.name)\t\(parameter.help)\n"
+            }
         }
 
         return help

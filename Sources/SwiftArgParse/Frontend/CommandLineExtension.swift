@@ -38,15 +38,42 @@ public extension CommandLine {
             config = config.children[path.value]!
         }
 
-        try _OptionProcessor().run(on: &context, with: config)
-        try _ParameterChecker().run(on: context, with: config)
+        do {
+            try _OptionProcessor().run(on: &context, with: config)
+            try _ParameterChecker().run(on: context, with: config)
+        } catch {
+            onError(error, config, arguments[1...])
+            return
+        }
 
         let commandContext = CommandContext(astContext: context, config: config)
 
         if commandContext.options["--help"] as! Bool {
             print(config)
+            return
         }
 
         config.command?.run(with: commandContext)
+    }
+
+    fileprivate static func onError(_ error: Error, _ config: Configuration, _ args: ArraySlice<String>) {
+        switch error {
+        case ParameterError.notEnoughParameters:
+            print("Not enough parameters")
+        case ParameterError.tooManyParameters:
+            print("Too many parameters")
+        case ParameterError.typeMismatch(let index, let expecting, let found, _):
+            print("\(index)st parameter type mismatch, expecting \(expecting), found \(found)")
+        case ParameterError.unrecognized(let index, _):
+            print("Unrecognized \(index)st parameter")
+        case OptionError.unrecogznied(let name, _):
+            print("Unrecognized \(name) option")
+        case OptionError.typeMismatch(let name, let expecting, let found, _):
+            print("Option \(name) type mismatch, expecting \(expecting), found \(found)")
+        default:
+            break
+        }
+
+        print(config)
     }
 }
