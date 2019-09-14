@@ -18,34 +18,41 @@ public class Configuration: CustomStringConvertible {
     public var description: String {
         var help = ""
 
-        help += "Subcommands:\n"
+        // MARK: Print subcommands
+        var masterDetailView = _MasterDetailView(title: "Subcommands")
 
         for (command, _) in children {
-            help += "\t\(command)\n"
+            masterDetailView.append(.init(master: command, detail: ""))
         }
+
+        masterDetailView.print(to: &help)
+        masterDetailView.removeAll()
 
         // MARK: Print options
-        help += "Options:\n"
+        masterDetailView.title = "Options"
 
         for (_, value) in options {
-            help += "\t"
+            var optionName = ""
 
             if value.alias != nil {
-                help += "\(value.alias!), "
+                print(value.alias!, separator: "", terminator: ",", to: &optionName)
             }
 
-            help += "\(value.name)"
-            help += "\t\t\t\(value.help)\n"
+            print(value.name, separator: "", terminator: "", to: &optionName)
+
+            masterDetailView.append(.init(master: optionName, detail: value.help))
         }
 
-        // MARK: Print parameters
-        help += "Parameters:\n"
+        masterDetailView.print(to: &help)
+        masterDetailView.removeAll()
+
+        masterDetailView.title = "Parameters"
 
         for parameter in parameters {
-            if !parameter.name.isEmpty {
-                help += "\t\(parameter.name)\t\(parameter.help)\n"
-            }
+            masterDetailView.append(.init(master: parameter.name, detail: parameter.help))
         }
+
+        masterDetailView.print(to: &help)
 
         return help
     }
