@@ -6,7 +6,6 @@
 //
 
 public enum OptionError: Error {
-    case optionNeedsValue(name: String, location: SourceLocation)
     case unrecogznied(name: String, location: SourceLocation)
     case typeMismatch(name: String, expecting: Any.Type, found: Any.Type, location: SourceLocation)
 }

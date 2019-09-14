@@ -26,7 +26,7 @@ class CommandLineExtensionTests: XCTestCase {
         }
 
         let test = TestCommand()
-        try! CommandLine.run(test, with: ["test", "-n=Philosophor"])
+        CommandLine.run(test, with: ["test", "-n=Philosophor"])
 
         XCTAssertEqual(test.name, "Philosophor")
         XCTAssertEqual(test.value, 10)
