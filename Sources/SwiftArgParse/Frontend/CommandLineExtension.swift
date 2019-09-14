@@ -42,7 +42,8 @@ public extension CommandLine {
             try _OptionProcessor().run(on: &context, with: config)
             try _ParameterChecker().run(on: context, with: config)
         } catch {
-            onError(error, config, arguments[1...])
+            _onError(error, config, arguments[...])
+
             return
         }
 
@@ -56,7 +57,13 @@ public extension CommandLine {
         config.command?.run(with: commandContext)
     }
 
-    fileprivate static func onError(_ error: Error, _ config: Configuration, _ args: ArraySlice<String>) {
+    /// Print error information
+    ///
+    /// - Parameters:
+    ///   - error: error to print
+    ///   - config: the current cnfiguration
+    ///   - args: the full command line argument, including the execution name
+    fileprivate static func _onError(_ error: Error, _ config: Configuration, _ args: ArraySlice<String>) {
         switch error {
         case ParameterError.notEnoughParameters:
             print("Not enough parameters")
