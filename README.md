@@ -4,7 +4,7 @@
 
 - [x] Nested commands
 - [x] Type checking for options and parameters
-- [ ] Help information
+- [x] Help information
 
 ## Get Started
 
@@ -104,6 +104,15 @@ app generate parameters
 
 Each command is associated with an array of strings known as the command's path.
 In the above example, the path will be `["app", "generate"]`
+
+## Help Information
+
+Help information is printed under these conditions
+
+- Options contains "--help"
+- An exception is thrown
+
+Syntax errors would be still printed, but without the full help information
 
 ## Implementation
 

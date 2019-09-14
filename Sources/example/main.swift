@@ -32,4 +32,4 @@ struct Application: Command {
     }
 }
 
-try! CommandLine.run(Application())
+CommandLine.run(Application())
