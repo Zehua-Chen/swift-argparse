@@ -9,8 +9,8 @@ import SwiftArgParse
 
 struct Calculator: Command {
     func setup(with config: Configuration) {
-        config.use(Parameter(type: Double.self))
-        config.use(Parameter(type: Double.self))
+        config.use(Parameter(type: Double.self, isRepeating: false, name: "Number 1"))
+        config.use(Parameter(type: Double.self, isRepeating: false, name: "Number 2"))
     }
 
     func run(with context: CommandContext) {
@@ -22,7 +22,7 @@ struct Calculator: Command {
 struct Application: Command {
     func setup(with config: Configuration) {
         config.use(Calculator(), for: "calc")
-        config.use(Option(name: "--hello", defaultValue: false))
+        config.use(Option(name: "--hello", defaultValue: false, alias: "-h", help: "message"))
     }
 
     func run(with context: CommandContext) {
@@ -32,4 +32,4 @@ struct Application: Command {
     }
 }
 
-try! CommandLine.run(Application())
+CommandLine.run(Application())
