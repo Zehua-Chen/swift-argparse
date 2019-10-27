@@ -8,7 +8,8 @@
 public struct SourcePoint:
     ExpressibleByArrayLiteral,
     Comparable,
-    CustomStringConvertible {
+    CustomStringConvertible
+{
 
     public typealias ArrayLiteralElement = Int
 

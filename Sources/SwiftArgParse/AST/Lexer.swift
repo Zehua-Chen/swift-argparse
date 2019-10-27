@@ -7,6 +7,7 @@
 
 import SwiftQueue
 
+/// The lexer
 internal struct _Lexer {
     /// A "true" string literal, used to parse booleans
     fileprivate static let _trueLiteral = "true"
@@ -50,6 +51,8 @@ internal struct _Lexer {
         return _queue.dequeue()
     }
 
+    /// Peek into the next token
+    /// - Parameter offset: how much to peek into, offset 0 gives the next token
     internal mutating func peek(offset: Int = 0) throws -> Token? {
         let count = offset + 1
         
@@ -212,6 +215,7 @@ internal struct _Lexer {
         return try compose()
     }
 
+    /// Move to the next element
     fileprivate mutating func _fetch() {
         _prevPoint = _source.point
         _element = _source.next()

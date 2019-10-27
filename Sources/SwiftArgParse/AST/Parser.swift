@@ -8,6 +8,7 @@
 fileprivate typealias _Primitive = _ASTContext.Primitive
 fileprivate typealias _Option = _ASTContext.Option
 
+/// The parser
 internal struct _Parser {
 
     fileprivate var _lexer: _Lexer

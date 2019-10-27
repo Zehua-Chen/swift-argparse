@@ -15,8 +15,8 @@ public struct Parameter {
         type: T.Type,
         isRepeating: Bool = false,
         name: String = "",
-        help: String = ""
-    ) {
+        help: String = "")
+    {
         self.name = name
         self.type = type
         self.help = help

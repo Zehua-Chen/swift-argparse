@@ -68,7 +68,11 @@ public extension CommandLine {
     ///   - error: error to print
     ///   - config: the current cnfiguration
     ///   - args: the full command line argument, including the execution name
-    fileprivate static func _onSemanticError(_ error: Error, _ config: Configuration, _ args: ArraySlice<String>) {
+    fileprivate static func _onSemanticError(
+        _ error: Error,
+        _ config: Configuration,
+        _ args: ArraySlice<String>)
+    {
         switch error {
         case ParameterError.notEnoughParameters:
             print("Not enough parameters")

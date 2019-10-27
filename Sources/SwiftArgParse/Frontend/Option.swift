@@ -18,8 +18,8 @@ public struct Option {
         name: String,
         defaultValue: T,
         alias: String? = nil,
-        help: String = ""
-    ) {
+        help: String = "")
+    {
         self.name = name
         self.defaultValue = defaultValue
         self.help = help
