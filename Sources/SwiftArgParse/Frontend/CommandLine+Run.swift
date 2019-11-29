@@ -28,7 +28,7 @@ public extension CommandLine {
         do {
             context = try _ASTContext(args: arguments[1...])
         } catch {
-            _onASTError(error, args: arguments[...])
+            _printASTError(error, args: arguments[...])
             return
         }
 
@@ -46,19 +46,14 @@ public extension CommandLine {
 
         do {
             try _OptionProcessor().run(on: &context, with: config)
+            _tryPrintHelp(in: context, from: config)
             try _ParameterChecker().run(on: context, with: config)
         } catch {
-            _onSemanticError(error, config, arguments[...])
+            _printSemanticError(error, config, arguments[...])
             return
         }
 
         let commandContext = CommandContext(astContext: context, config: config)
-
-        if commandContext.options["--help"] as! Bool {
-            print(config)
-            return
-        }
-
         config.command?.run(with: commandContext)
     }
 
@@ -68,7 +63,7 @@ public extension CommandLine {
     ///   - error: error to print
     ///   - config: the current cnfiguration
     ///   - args: the full command line argument, including the execution name
-    fileprivate static func _onSemanticError(
+    fileprivate static func _printSemanticError(
         _ error: Error,
         _ config: Configuration,
         _ args: ArraySlice<String>)
@@ -90,10 +85,33 @@ public extension CommandLine {
             break
         }
 
-        print(config)
+        _printHelp(from: config)
     }
 
-    fileprivate static func _onASTError(_ error: Error, args: ArraySlice<String>) {
+    /// Display AST error
+    /// - Parameters:
+    ///   - error: the AST error
+    ///   - args: the argument to the command line
+    fileprivate static func _printASTError(_ error: Error, args: ArraySlice<String>) {
         print("\(error)")
+    }
+
+    /// Print help information if AST context contains "--help" option
+    /// - Parameters:
+    ///   - context: the AST context parsed from the command line
+    ///   - config: configuration to print with
+    fileprivate static func _tryPrintHelp(in context: _ASTContext, from config: Configuration) {
+        for case .some(.option(let option)) in context.elements {
+            if option.name == "--help" {
+                _printHelp(from: config)
+            }
+        }
+    }
+
+    /// Print help information and exit the process with 1
+    /// - Parameter config: the configuration
+    fileprivate static func _printHelp(from config: Configuration) {
+        print(config)
+        exit(1)
     }
 }
