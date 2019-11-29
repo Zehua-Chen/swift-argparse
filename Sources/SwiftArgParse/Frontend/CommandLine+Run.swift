@@ -70,17 +70,21 @@ public extension CommandLine {
     {
         switch error {
         case ParameterError.notEnoughParameters:
-            print("Not enough parameters")
+            print("Not enough parameters", to: &StandardErrorTextOutputStream.default)
         case ParameterError.tooManyParameters:
-            print("Too many parameters")
+            print("Too many parameters", to: &StandardErrorTextOutputStream.default)
         case ParameterError.typeMismatch(let index, let expecting, let found, _):
-            print("\(index)st parameter type mismatch, expecting \(expecting), found \(found)")
+            print(
+                "\(index)st parameter type mismatch, expecting \(expecting), found \(found)",
+                to: &StandardErrorTextOutputStream.default)
         case ParameterError.unrecognized(let index, _):
-            print("Unrecognized \(index)st parameter")
+            print("Unrecognized \(index)st parameter", to: &StandardErrorTextOutputStream.default)
         case OptionError.unrecogznied(let name, _):
-            print("Unrecognized \(name) option")
+            print("Unrecognized \(name) option", to: &StandardErrorTextOutputStream.default)
         case OptionError.typeMismatch(let name, let expecting, let found, _):
-            print("Option \(name) type mismatch, expecting \(expecting), found \(found)")
+            print(
+                "Option \(name) type mismatch, expecting \(expecting), found \(found)",
+                to: &StandardErrorTextOutputStream.default)
         default:
             break
         }
@@ -93,7 +97,7 @@ public extension CommandLine {
     ///   - error: the AST error
     ///   - args: the argument to the command line
     fileprivate static func _printASTError(_ error: Error, args: ArraySlice<String>) {
-        print("\(error)")
+        print("\(error)", to: &StandardErrorTextOutputStream.default)
     }
 
     /// Print help information if AST context contains "--help" option
@@ -111,7 +115,7 @@ public extension CommandLine {
     /// Print help information and exit the process with 1
     /// - Parameter config: the configuration
     fileprivate static func _printHelp(from config: Configuration) {
-        print(config)
+        print(config, to: &StandardErrorTextOutputStream.default)
         exit(1)
     }
 }
