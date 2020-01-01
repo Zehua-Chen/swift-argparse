@@ -24,7 +24,8 @@ public extension CommandLine {
         command.setup(with: config)
 
         // Parse AST
-        var context: _ASTContext! = nil
+        var context: _ASTContext
+
         do {
             context = try _ASTContext(args: arguments[1...])
         } catch {
@@ -46,6 +47,8 @@ public extension CommandLine {
 
         do {
             try _OptionProcessor().run(on: &context, with: config)
+            // If --help is printed, then there probabily are something wrong with provided
+            // parameters, therefore help must be print here if possible
             _tryPrintHelp(in: context, from: config)
             try _ParameterChecker().run(on: context, with: config)
         } catch {
@@ -114,7 +117,7 @@ public extension CommandLine {
 
     /// Print help information and exit the process with 1
     /// - Parameter config: the configuration
-    fileprivate static func _printHelp(from config: Configuration) {
+    fileprivate static func _printHelp(from config: Configuration) -> Never {
         print(config, to: &StandardErrorTextOutputStream.default)
         exit(1)
     }
