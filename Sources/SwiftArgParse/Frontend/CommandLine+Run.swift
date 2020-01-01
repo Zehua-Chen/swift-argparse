@@ -30,7 +30,6 @@ public extension CommandLine {
             context = try _ASTContext(args: arguments[1...])
         } catch {
             _printASTError(error, args: arguments[...])
-            return
         }
 
         // Semantic Stages
@@ -52,8 +51,8 @@ public extension CommandLine {
             _tryPrintHelp(in: context, from: config)
             try _ParameterChecker().run(on: context, with: config)
         } catch {
-            _printSemanticError(error, config, arguments[...])
-            return
+            _printSemanticError(error, arguments[...])
+            _printHelp(from: config)
         }
 
         let commandContext = CommandContext(astContext: context, config: config)
@@ -68,7 +67,6 @@ public extension CommandLine {
     ///   - args: the full command line argument, including the execution name
     fileprivate static func _printSemanticError(
         _ error: Error,
-        _ config: Configuration,
         _ args: ArraySlice<String>)
     {
         switch error {
@@ -91,16 +89,15 @@ public extension CommandLine {
         default:
             break
         }
-
-        _printHelp(from: config)
     }
 
     /// Display AST error
     /// - Parameters:
     ///   - error: the AST error
     ///   - args: the argument to the command line
-    fileprivate static func _printASTError(_ error: Error, args: ArraySlice<String>) {
+    fileprivate static func _printASTError(_ error: Error, args: ArraySlice<String>) -> Never {
         print("\(error)", to: &StandardErrorTextOutputStream.default)
+        exit(1)
     }
 
     /// Print help information if AST context contains "--help" option
